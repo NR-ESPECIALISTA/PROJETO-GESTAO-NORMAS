@@ -1,4 +1,4 @@
 id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
 
 access_crm_demo_crm_demo,crm_demo.crm_demo,model_crm_demo_crm_demo,base.group_user,1,1,1,1
-access.hospital.patient,access_hospital_patient,NREspecialista.model_hospital_patient,base.group_user,1,1,1,1
+access.nr.equipamento,access_nr_equipamento,NREspecialista.model_nr_equipamento,base.group_user,1,1,1,1

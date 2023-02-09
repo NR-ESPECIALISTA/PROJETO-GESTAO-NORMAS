@@ -7,17 +7,17 @@
         subtitle on modules listing or apps.openerp.com""",
 
     'description': """
-        Long description of module's purpose 
+        Modulo para controle, gestão e inspeção de equipamentos de alta pressão.
     """,
 
-    'author': "Sdineii Jrr",
-    'website': "http://www.nrespecialista.com",
+    'author': "Equipe Nr-Especialista",
+    'website': "https://metainspecoes.com.br/",
 
     # Categories can be used to filter modules in modules listing
     # Check https://github.com/odoo/odoo/blob/15.0/odoo/addons/base/data/ir_module_category_data.xml
     # for the full list
-    'category': 'Testing',
-    'version': '0.1',
+    'category': 'Gestão',
+    'version': '0.2',
 
     # any module necessary for this one to work correctly
     'depends': ['base', 'mail'],
@@ -26,7 +26,7 @@
     'data': [
         'security/ir.model.access.csv',
         'views/menu.xml',
-        'views/patient.xml',
+        'views/equipamento.xml',
         # 'views/views.xml',
         # 'views/templates.xml',
     ],
