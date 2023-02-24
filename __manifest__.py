@@ -20,14 +20,15 @@
     'version': '0.2',
 
     # any module necessary for this one to work correctly
-    'depends': ['base', 'mail'],
+    'depends': ['base', 'mail', 'portal', 'board'],
 
     # always loaded
     'data': [
         'security/ir.model.access.csv',
         'views/menu.xml',
         'views/equipamento.xml',
-        'views/equip_inspecao.xml',
+        'views/portal_template.xml',
+        'data/sequence.xml',
         # 'views/views.xml',
         # 'views/templates.xml',
     ],
