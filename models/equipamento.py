@@ -6,25 +6,27 @@ from odoo import api, fields, models
 # Precisa Desinstalar esse modulo, logo em seguida derrubar o serviço e subir.
 # ------------------------------------------------------------------------------
 
-
 class NrEquipamento(models.Model):
     _name = "nr.equipamento"
     _inherit = ["mail.thread", "mail.activity.mixin"]
     _description = "Nr-Especialista | Gestão de Equipamentos e Inspeções"
 
+    @api.model
+    def create(self, vals):
+        vals['equipamento_id'] = self.env['ir.sequence'].next_by_code(
+            'equip.sequence')
+        return super(NrEquipamento, self).create(vals)
+
     imagem_equip = fields.Image(string="Image")
     name = fields.Char(string="Nome do Equipamento",
                        required=True, copy=False, index=True)  # tracking=True
+    equipamento_id = fields.Char(string="ID")
     state = fields.Selection([
         ('em_adequacao', 'EM ADEQUAÇÃO'),
         ('aprovado', 'APROVADO'),
         ('reprovado', 'REPROVADO'),
         ('desativado', 'DESATIVADO'),
         ('desenquadrado', 'DESENQUADRADO')], default='em_adequacao', string='Status', required=True)
-    # age = fields.Integer(string="Age")
-    # image = fields.Char(string='image')
-    # gender = fields.Selection(
-    #    [('male', 'Male'), ('female', 'Female')], string='Gender')
 
     responsavel_id = fields.Many2one(
         'res.partner', string="Responsável")
@@ -48,9 +50,11 @@ class NrEquipamento(models.Model):
     # | Informações do Equipamento |
     # ------------------------------
     desc_equip = fields.Char(string="Descrição do Equipamento")
-    # normas_fabri_ids = fields.Many2many()
-    # normas_calibracao_ids = fields.Many2many()
-    # fabricante_id = fields.Many2one()
+    normas_fabri_ids = fields.Many2many(
+        'x_normas_fabricacao', string="Normas de Fabricação")
+    normas_calibracao_ids = fields.Many2many(
+        'x_normas_calibracao', string="Normas de Calibração")
+    fabricante_id = fields.Many2one('res.partner', string="Fabricante")
     ano_fabri = fields.Integer(string="Ano de Fabricação")
     num_serie = fields.Integer(string="Número de Série")
     lote = fields.Integer(string="Lote")
@@ -59,9 +63,11 @@ class NrEquipamento(models.Model):
     # | Informações do Contato |
     # --------------------------
     cliente_propri = fields.Many2one(
-        'res.company', string="Cliente Proprietario")  # Saber como configura o dominio de um may2one
-    # nome_contato = fields._Relational()
-    # email_contato = fields._Relational();
+        'res.partner', string="Cliente Proprietario")
+    nome_contato = fields.Char(
+        string="Nome do Contato", related="cliente_propri.child_ids.name")
+    email_contato = fields.Char(
+        string="Email do Contato", related="cliente_propri.child_ids.email_formatted")
     depar_respon = fields.Char(string="Departamento do Responsável")
     local_instalacao = fields.Char(string="Local de Instalação")
 
@@ -77,7 +83,8 @@ class NrEquipamento(models.Model):
          ('nao', 'Não')], string="Tem PI ou qualquer dispositivo para monitorar pressão?"
     )
 
-    # equip_vinculado = fields.Many2one()
+    equip_relacional_ids = fields.Many2many(
+        'nr.equipamento', 'equipamento_name', 'name', string="Informe uma Tag relacionada")
 
     # ------------------------------
     # | Dados Técnicos da Caldeira |
@@ -94,11 +101,13 @@ class NrEquipamento(models.Model):
     equip_cal_temp_operacao = fields.Char(
         string="Caldeira - Temperatura de Operação (ºC)")
     equip_cal_volume = fields.Float(string="Caldeira - Volume(m³)")
-    # equip_cal_material_fabri_ids = fields.Many2many()
+    equip_cal_material_fabri_ids = fields.Many2many(
+        'x_material_fabricacao', 'name', string="Material de Fabricação")
     equip_cal_ambiente_instalacao = fields.Selection(
         [('aberto', 'Aberto'),
          ('fechado', 'Fechado')], string="Ambiente de instalação")
-    # equip_cal_tipo_fluido_id = fields.Many2one(string="Tipo de Fluido")
+    equip_cal_tipo_fluido_id = fields.Many2one(
+        'x_tipo_fluido', string="Tipo de Fluido")
 
     # ---------------------------------------
     # | Dados Técnicos do Vaso - Lado Casco |
@@ -110,14 +119,15 @@ class NrEquipamento(models.Model):
     equip_vaso_casco_press_teste = fields.Float(
         string="Pressão de Teste (kgf/cm²)")
     equip_vaso_casco_temp_projeto = fields.Char(
-        string="Temperatura de Projeto (Cº)")
+        string="Temperatura de Projeto (ºC)")
     equip_vaso_casco_temp_operacao = fields.Char(
-        string="Temperatura de Operação (Cº)")
+        string="Temperatura de Operação (ºC)")
     equip_vaso_casco_compri_altura = fields.Float(
         string="Comprimento/Altura (mm)")
     equip_vaso_casco_diametro = fields.Float(string="Diâmetro (mm)")
     equip_vaso_casco_volume = fields.Float(string="Volume (m³)")
-    # equip_vaso_casco_mat_fabricacao_id = fields.Many2one(string="Material de Fabricação")
+    equip_vaso_casco_mat_fabricacao_ids = fields.Many2many(
+        'x_material_fabricacao', 'name', string="Material de Fabricação")
     equip_vaso_casco_tipo_fluidos = fields.Selection([
         ('acido_sulfurico', 'ÁCIDO SULFÚRICO'),
         ('ar_comprimido', 'AR COMPRIMIDO'),
@@ -136,10 +146,14 @@ class NrEquipamento(models.Model):
         ('soda_caustica', 'SODA CAUSTICA'),
         ('diesel', 'DIESEL'),
         ('ar_oleo', 'AR/ÓLEO')], string="Tipo de Fluido")
-    # equip_vaso_casco_cal_pxv = fields.Char(string="Calculo PxV")  # Tem que calcular o valor do PxV para esse campo
-    # equip_vaso_casco_pxv_class = fields.Float(string="PxV Classificação")  # Tem que calcular o valor de PxV para esse campo
-    # equip_vaso_casco_grupo_risco = fields.Char(string="Grupo Potencial de Risco")  # Tem que calcular o valor dos dois campos de cima
-    # equip_vaso_casco_classe_fluido = fields.Char(string="Classe do Fluido ")  # Tem que Calcular a Classe do Fluido
+    equip_vaso_casco_cal_pxv = fields.Char(
+        string="Calculo PxV", compute="casco_cal_pxv")
+    equip_vaso_casco_pxv_class = fields.Float(
+        string="PxV Classificação", compute="casco_pxv_classificacao")
+    equip_vaso_casco_grupo_risco = fields.Char(
+        string="Grupo Potencial de Risco", compute="casco_cal_grupo_risco")
+    equip_vaso_casco_classe_fluido = fields.Char(
+        string="Classe do Fluido ", compute="casco_cal_classe_fluido")
     equip_vaso_casco_categoria = fields.Selection([
         ('cat_1', 'CAT I'),
         ('cat_2', 'CAT II'),
@@ -148,6 +162,71 @@ class NrEquipamento(models.Model):
         ('cat_5', 'CAT V'),
         ('n_a', 'N/A')], string="Categoria")
 
+    @api.depends('equip_vaso_casco_press_trabalho', 'equip_vaso_casco_volume')
+    def casco_cal_pxv(self):
+        for rec in self:
+            rec.equip_vaso_casco_cal_pxv = round(
+                rec.equip_vaso_casco_press_trabalho * 98.068 * rec.equip_vaso_casco_volume, 2)
+
+    @api.depends('equip_vaso_casco_press_trabalho', 'equip_vaso_casco_volume')
+    def casco_pxv_classificacao(self):
+        for rec in self:
+            rec.equip_vaso_casco_pxv_class = round(
+                rec.equip_vaso_casco_press_trabalho * 0.09806 * rec.equip_vaso_casco_volume, 2)
+
+    @api.depends('equip_vaso_casco_pxv_class')
+    def casco_cal_grupo_risco(self):
+        for rec in self:
+            if rec.equip_vaso_casco_pxv_class < 1:
+                rec.equip_vaso_casco_grupo_risco = "GRUPO 5"
+            elif rec.equip_vaso_casco_pxv_class >= 1 and rec.equip_vaso_casco_pxv_class < 2.5:
+                rec.equip_vaso_casco_grupo_risco = "GRUPO 4"
+            elif rec.equip_vaso_casco_pxv_class >= 2.5 and rec.equip_vaso_casco_pxv_class < 30:
+                rec.equip_vaso_casco_grupo_risco = "GRUPO 3"
+            elif rec.equip_vaso_casco_pxv_class >= 30 and rec.equip_vaso_casco_pxv_class < 100:
+                rec.equip_vaso_casco_grupo_risco = "GRUPO 2"
+            elif rec.equip_vaso_casco_pxv_class >= 100:
+                rec.equip_vaso_casco_grupo_risco = "GRUPO 1"
+
+    @api.depends('equip_vaso_casco_tipo_fluidos')
+    def casco_cal_classe_fluido(self):
+        for rec in self:
+            if rec.equip_vaso_casco_tipo_fluidos == "acido_sulfurico":
+                rec.equip_vaso_casco_classe_fluido = "CLASSE A"
+            elif rec.equip_vaso_casco_tipo_fluidos == "ar_comprimido":
+                rec.equip_vaso_casco_classe_fluido = "CLASSE C"
+            elif rec.equip_vaso_casco_tipo_fluidos == "agua":
+                rec.equip_vaso_casco_classe_fluido = "CLASSE D"
+            elif rec.equip_vaso_casco_tipo_fluidos == "tinta":
+                rec.equip_vaso_casco_classe_fluido = "CLASSE "
+            elif rec.equip_vaso_casco_tipo_fluidos == "desengraxante":
+                rec.equip_vaso_casco_classe_fluido = "CLASSE "
+            elif rec.equip_vaso_casco_tipo_fluidos == "clorato_de_sodio":
+                rec.equip_vaso_casco_classe_fluido = "CLASSE D"
+            elif rec.equip_vaso_casco_tipo_fluidos == "peroxido_de_hidrogenio":
+                rec.equip_vaso_casco_classe_fluido = "CLASSE A"
+            elif rec.equip_vaso_casco_tipo_fluidos == "mother_liquor_eletrolito":
+                rec.equip_vaso_casco_classe_fluido = "CLASSE A"
+            elif rec.equip_vaso_casco_tipo_fluidos == "helio":
+                rec.equip_vaso_casco_classe_fluido = "CLASSE C"
+            elif rec.equip_vaso_casco_tipo_fluidos == "nitrogenio":
+                rec.equip_vaso_casco_classe_fluido = "CLASSE C"
+            elif rec.equip_vaso_casco_tipo_fluidos == "hidrogenio":
+                rec.equip_vaso_casco_classe_fluido = "CLASSE A"
+            elif rec.equip_vaso_casco_tipo_fluidos == "vapor_de_agua":
+                rec.equip_vaso_casco_classe_fluido = "CLASSE C"
+            elif rec.equip_vaso_casco_tipo_fluidos == "eletrolito":
+                rec.equip_vaso_casco_classe_fluido = "CLASSE A"
+            elif rec.equip_vaso_casco_tipo_fluidos == "dioxido_de_cloro":
+                rec.equip_vaso_casco_classe_fluido = "CLASSE A"
+            elif rec.equip_vaso_casco_tipo_fluidos == "soda_caustica":
+                rec.equip_vaso_casco_classe_fluido = "CLASSE D"
+            elif rec.equip_vaso_casco_tipo_fluidos == "diesel":
+                rec.equip_vaso_casco_classe_fluido = "CLASSE A"
+            elif rec.equip_vaso_casco_tipo_fluidos == "ar_oleo":
+                rec.equip_vaso_casco_classe_fluido = "CLASSE B"
+            else:
+                rec.equip_vaso_casco_classe_fluido = "Nenhum Fluido Selecionado!"
     # --------------------------------------
     # | Dados Técnicos do Vaso - Lado Tubo |
     # --------------------------------------
@@ -158,11 +237,12 @@ class NrEquipamento(models.Model):
     equip_vaso_tubo_press_teste = fields.Float(
         string="Pressão de Teste (kgf/cm²)")
     equip_vaso_tubo_temp_projeto = fields.Char(
-        string="Temperatura de Projeto (Cº)")
+        string="Temperatura de Projeto (ºC)")
     equip_vaso_tubo_temp_operacao = fields.Char(
-        string="Temperatura de Operação (Cº)")
+        string="Temperatura de Operação (ºC)")
     equip_vaso_tubo_volume = fields.Float(string="Volume (m³)")
-    # equip_vaso_tubo_mat_fabricacao_id = fields.Many2one(string="Material de Fabricação")
+    equip_vaso_tubo_mat_fabricacao_ids = fields.Many2many(
+        'x_material_fabricacao', 'name', string="Material de Fabricação")
     equip_vaso_tubo_tipo_fluido = fields.Selection([
         ('acido_sulfurico', 'ÁCIDO SULFÚRICO'),
         ('ar_comprimido', 'AR COMPRIMIDO'),
@@ -181,10 +261,14 @@ class NrEquipamento(models.Model):
         ('soda_caustica', 'SODA CAUSTICA'),
         ('diesel', 'DIESEL'),
         ('ar_oleo', 'AR/ÓLEO')], string="Tipo de Fluido")
-    # equip_vaso_tubo_cal_pxv = fields.Char(string="Calculo PxV")  # Tem que calcular o valor do PxV para esse campo
-    # equip_vaso_tubo_pxv_class = fields.Float(string="PxV Classificação")  # Tem que calcular o valor de PxV para esse campo
-    # equip_vaso_tubo_grupo_risco = fields.Char(string="Grupo Potencial de Risco")  # Tem que calcular o valor dos dois campos de cima
-    # equip_vaso_tubo_classe_fluido = fields.Char(string="Classe do Fluido ")  # Tem que Calcular a Classe do Fluido
+    equip_vaso_tubo_cal_pxv = fields.Char(
+        string="Calculo PxV", compute="tubo_calc_pxv")
+    equip_vaso_tubo_pxv_class = fields.Float(
+        string="PxV Classificação", compute="tubo_calc_pxv_class")
+    equip_vaso_tubo_grupo_risco = fields.Char(
+        string="Grupo Potencial de Risco", compute="tubo_calc_grupo_risco")
+    equip_vaso_tubo_classe_fluido = fields.Char(
+        string="Classe do Fluido", compute="tubo_calc_classe_fluido")
     equip_vaso_tubo_categoria = fields.Selection([
         ('cat_1', 'CAT I'),
         ('cat_2', 'CAT II'),
@@ -193,20 +277,88 @@ class NrEquipamento(models.Model):
         ('cat_5', 'CAT V'),
         ('n_a', 'N/A')], string="Categoria")
 
+    @api.depends('equip_vaso_tubo_press_trabalho', 'equip_vaso_tubo_volume')
+    def tubo_calc_pxv(self):
+        for rec in self:
+            rec.equip_vaso_tubo_cal_pxv = round(
+                rec.equip_vaso_tubo_press_trabalho * 98.068 * rec.equip_vaso_tubo_volume, 2)
+
+    @api.depends('equip_vaso_tubo_press_trabalho', 'equip_vaso_tubo_volume')
+    def tubo_calc_pxv_class(self):
+        for rec in self:
+            rec.equip_vaso_tubo_pxv_class = round(
+                rec.equip_vaso_tubo_press_trabalho * 0.09806 * rec.equip_vaso_tubo_volume, 2)
+
+    @api.depends('equip_vaso_tubo_pxv_class')
+    def tubo_calc_grupo_risco(self):
+        for rec in self:
+            if rec.equip_vaso_tubo_pxv_class < 1:
+                rec.equip_vaso_tubo_grupo_risco = "GRUPO 5"
+            elif rec.equip_vaso_tubo_pxv_class >= 1 and rec.equip_vaso_tubo_pxv_class < 2.5:
+                rec.equip_vaso_tubo_grupo_risco = "GRUPO 4"
+            elif rec.equip_vaso_tubo_pxv_class >= 2.5 and rec.equip_vaso_tubo_pxv_class < 30:
+                rec.equip_vaso_tubo_grupo_risco = "GRUPO 3"
+            elif rec.equip_vaso_tubo_pxv_class >= 30 and rec.equip_vaso_tubo_pxv_class < 100:
+                rec.equip_vaso_tubo_grupo_risco = "GRUPO 2"
+            elif rec.equip_vaso_tubo_pxv_class >= 100:
+                rec.equip_vaso_tubo_grupo_risco = "GRUPO 1"
+
+    @api.depends('equip_vaso_tubo_tipo_fluido')
+    def tubo_calc_classe_fluido(self):
+        for rec in self:
+            if rec.equip_vaso_tubo_tipo_fluido == "acido_sulfurico":
+                rec.equip_vaso_tubo_classe_fluido = "CLASSE A"
+            elif rec.equip_vaso_tubo_tipo_fluido == "ar_comprimido":
+                rec.equip_vaso_tubo_classe_fluido = "CLASSE C"
+            elif rec.equip_vaso_tubo_tipo_fluido == "agua":
+                rec.equip_vaso_tubo_classe_fluido = "CLASSE D"
+            elif rec.equip_vaso_tubo_tipo_fluido == "tinta":
+                rec.equip_vaso_tubo_classe_fluido = "CLASSE "
+            elif rec.equip_vaso_tubo_tipo_fluido == "desengraxante":
+                rec.equip_vaso_tubo_classe_fluido = "CLASSE "
+            elif rec.equip_vaso_tubo_tipo_fluido == "clorato_de_sodio":
+                rec.equip_vaso_tubo_classe_fluido = "CLASSE D"
+            elif rec.equip_vaso_tubo_tipo_fluido == "peroxido_de_hidrogenio":
+                rec.equip_vaso_tubo_classe_fluido = "CLASSE A"
+            elif rec.equip_vaso_tubo_tipo_fluido == "mother_liquor_eletrolito":
+                rec.equip_vaso_tubo_classe_fluido = "CLASSE A"
+            elif rec.equip_vaso_tubo_tipo_fluido == "helio":
+                rec.equip_vaso_tubo_classe_fluido = "CLASSE C"
+            elif rec.equip_vaso_tubo_tipo_fluido == "nitrogenio":
+                rec.equip_vaso_tubo_classe_fluido = "CLASSE C"
+            elif rec.equip_vaso_tubo_tipo_fluido == "hidrogenio":
+                rec.equip_vaso_tubo_classe_fluido = "CLASSE A"
+            elif rec.equip_vaso_tubo_tipo_fluido == "vapor_de_agua":
+                rec.equip_vaso_tubo_classe_fluido = "CLASSE C"
+            elif rec.equip_vaso_tubo_tipo_fluido == "eletrolito":
+                rec.equip_vaso_tubo_classe_fluido = "CLASSE A"
+            elif rec.equip_vaso_tubo_tipo_fluido == "dioxido_de_cloro":
+                rec.equip_vaso_tubo_classe_fluido = "CLASSE A"
+            elif rec.equip_vaso_tubo_tipo_fluido == "soda_caustica":
+                rec.equip_vaso_tubo_classe_fluido = "CLASSE D"
+            elif rec.equip_vaso_tubo_tipo_fluido == "diesel":
+                rec.equip_vaso_tubo_classe_fluido = "CLASSE A"
+            elif rec.equip_vaso_tubo_tipo_fluido == "ar_oleo":
+                rec.equip_vaso_tubo_classe_fluido = "CLASSE B"
+            else:
+                rec.equip_vaso_tubo_classe_fluido = "Selecione um tipo de fluido!"
     # -------------------------------
     # | Dados Técnicos da Tubulação |
     # -------------------------------
-    # equip_tubu_linhas_ramais_ids = fields.Many2many(string="Linhas e Ramais")
+    equip_tubu_linhas_ramais_ids = fields.Many2many(
+        'x_linhas_ramais', string="Linhas e Ramais")
     equip_tubu_pmta = fields.Float(string="PMTA(kgf/cm²)")
     equip_tubu_press_trabalho = fields.Float(
-        string="Pressão de Trabalho (kgf/cm²):")
-    equip_tubu_press_teste = fields.Float(string="Pressão de Teste (kgf/cm²):")
+        string="Pressão de Trabalho (kgf/cm²)")
+    equip_tubu_press_teste = fields.Float(string="Pressão de Teste (kgf/cm²)")
     equip_tubu_temp_projeto = fields.Char(string="Temperatura de Projeto (ºC)")
     equip_tubu_temp_operacao = fields.Char(
         string="Temperatura de Operação (ºC)")
     equip_tubu_volume = fields.Float(string="Tubulação - Volume (m³)")
-    # equip_tubu_mat_fabricacao_id = fields.Many2one(string="Material de Fabricação")
-    # equip_tubu_tipo_fluido_id = fields.Many2one(string="Tipo de Fluido")
+    equip_tubu_mat_fabricacao_ids = fields.Many2many(
+        'x_material_fabricacao', 'name', string="Material de Fabricação")
+    equip_tubu_tipo_fluido_id = fields.Many2one(
+        'x_tipo_fluido', string="Tipo de Fluido")
     equip_tubu_isolamento = fields.Selection([
         ('sim', 'Sim'),
         ('nao', 'Não')], string="Possui isolamento?")
@@ -215,7 +367,7 @@ class NrEquipamento(models.Model):
     # | Dados Técnicos do Tanque |
     # ----------------------------
     equip_tanque_press_trabalho = fields.Float(
-        string="Pressão de Trabalho (kgf/cm²):")
+        string="Pressão de Trabalho (kgf/cm²)")
     equip_tanque_temp_projeto = fields.Char(
         string="Temperatura de Projeto (ºC)")
     equip_tanque_temp_operacao = fields.Char(
@@ -224,8 +376,10 @@ class NrEquipamento(models.Model):
     equip_tanque_altura = fields.Float(string="Altura (mm)")
     equip_tanque_diametro_interno = fields.Float(
         string="Diâmetro interno (mm)")
-    # equip_tanque_mat_fabricacao_id = fields.Many2one(string="Material de Fabricação")
-    # equip_tanque_tipo_fluido_id = fields.Many2one(string="Tipo de Fluido")
+    equip_tanque_mat_fabricacao_ids = fields.Many2many(
+        'x_material_fabricacao', 'name', string="Material de Fabricação")
+    equip_tanque_tipo_fluido_id = fields.Many2one(
+        'x_tipo_fluido', string="Tipo de Fluido")
 
     # -------------------------
     # | Dados Técnicos da PSV |
@@ -245,8 +399,10 @@ class NrEquipamento(models.Model):
         ('aberto', 'Aberto'),
         ('fechado', 'Fechado'),
         ('nao_possui', 'Não Possui')], string="Castelo")
-    # equip_psv_mat_fabricacao_id = fields.Many2one(string="Material de Fabricação")
-    # equip_psv_tipo_fluido_id = fields.Many2one(string="Tipo de Fluido")
+    equip_psv_mat_fabricacao_ids = fields.Many2many(
+        'x_material_fabricacao', 'name', string="Material de Fabricação")
+    equip_psv_tipo_fluido_id = fields.Many2one(
+        'x_tipo_fluido', string="Tipo de Fluido")
 
     # ------------------------
     # | Dados Técnicos do PI |
@@ -282,7 +438,8 @@ class NrEquipamento(models.Model):
         ('unf_refrigeracao', 'UNF (Refrigeração)')], string="Conexão")
     equip_pi_temp_trabalho = fields.Float(
         string="Temperatura de Trabalho (ºC)")
-    # equip_pi_tipo_fluido_id = fields.Many2one(string="Tipo de Fluido")
+    equip_pi_tipo_fluido_id = fields.Many2one(
+        'x_tipo_fluido', string="Tipo de Fluido")
 
     # ------------------------
     # | Documentação do Vaso |
@@ -730,6 +887,13 @@ class NrEquipamento(models.Model):
     # | Inspeção do Vaso de Pressão            |
     # | Exame Externo e Interno                |
     # ------------------------------------------
+    insp_vaso_ex_externo = fields.Boolean(string="Exame Externo")
+    insp_vaso_ex_interno = fields.Boolean(string="Exame Interno")
+    insp_vaso_med_espessura = fields.Boolean(
+        string="Medição de Espessura por Ultrassom")
+    insp_vaso_th = fields.Boolean(string="Teste Hidrostático")
+    insp_vaso_lp = fields.Boolean(string="Líquido Penetrante")
+
     insp_vaso_1_1 = fields.Selection([('a', 'A'), ('r', 'R'), ('ar', 'AR'), ('na', 'NA')],
                                      string='1.1 Placa de Identificação indelével, fixada no corpo, em local de fácil acesso e visível com informações mínimas conforme item 13.5.1.4')
     insp_vaso_1_2 = fields.Selection([('a', 'A'), ('r', 'R'), ('ar', 'AR'), ('na', 'NA')],
@@ -793,15 +957,15 @@ class NrEquipamento(models.Model):
 
     insp_vaso_5_1 = fields.Selection([('a', 'A'), ('r', 'R'), ('ar', 'AR'), (
         'na', 'NA')], string='5.1 Existência de trincas, corrosão, escavações no costado / tampos')
-    insp_vaso_5_1 = fields.Selection([('a', 'A'), ('r', 'R'), ('ar', 'AR'), (
+    insp_vaso_5_2 = fields.Selection([('a', 'A'), ('r', 'R'), ('ar', 'AR'), (
         'na', 'NA')], string='5.2 Integridade do revestimento interno')
-    insp_vaso_5_1 = fields.Selection([('a', 'A'), ('r', 'R'), ('ar', 'AR'), (
+    insp_vaso_5_3 = fields.Selection([('a', 'A'), ('r', 'R'), ('ar', 'AR'), (
         'na', 'NA')], string='5.3 Indicações de poros ou deformações')
-    insp_vaso_5_1 = fields.Selection([('a', 'A'), ('r', 'R'), ('ar', 'AR'), (
+    insp_vaso_5_4 = fields.Selection([('a', 'A'), ('r', 'R'), ('ar', 'AR'), (
         'na', 'NA')], string='5.4 Integridade dos cordões de solda internos')
-    insp_vaso_5_1 = fields.Selection([('a', 'A'), ('r', 'R'), ('ar', 'AR'), (
+    insp_vaso_5_5 = fields.Selection([('a', 'A'), ('r', 'R'), ('ar', 'AR'), (
         'na', 'NA')], string='5.5 Integridade dos medidores de nível, pescadores, etc')
-    insp_vaso_5_1 = fields.Selection([('a', 'A'), ('r', 'R'), ('ar', 'AR'), (
+    insp_vaso_5_6 = fields.Selection([('a', 'A'), ('r', 'R'), ('ar', 'AR'), (
         'na', 'NA')], string='5.6 Integridade dos bocais, luvas e demais conexões e acessórios')
 
     insp_vaso_ex_interno_img_1 = fields.Image(
@@ -816,7 +980,7 @@ class NrEquipamento(models.Model):
     # | Inspeção da Caldeira                   |
     # | Exame Externo e Interno                |
     # ------------------------------------------
-    insp_cal_tipo_inspecao = fields.Selection([
+    insp_tipo_inspecao = fields.Selection([
         ('inicial', 'Inicial'),
         ('periodica', 'Periódica'),
         ('extraordinaria', 'Extraordinária')], string="Tipo de Inspeção")
@@ -902,7 +1066,7 @@ class NrEquipamento(models.Model):
         string="Exame Externo e Interno - Imagem 6")
 
     # ------------------------------------------
-    # | Inspeção da Caldeira                   |
+    # | Inspeção                               |
     # | Medição de Espessura por Ultrassom     |
     # ------------------------------------------
     insp_med_esp_esquerdo_0 = fields.Float(string="Ponto 1 (0º)")
@@ -926,7 +1090,7 @@ class NrEquipamento(models.Model):
     insp_med_esp_costado_270 = fields.Float(string="Ponto 4 (270º)")
 
     # ------------------------------------------
-    # | Inspeção da Caldeira                   |
+    # | Inspeção                               |
     # | Teste Hidrostático                     |
     # ------------------------------------------
     insp_th_fluido_teste = fields.Selection([
@@ -951,7 +1115,7 @@ class NrEquipamento(models.Model):
         ('reprovado', 'Reprovado')], string="Laudo")
 
     # ------------------------------------------
-    # | Inspeção da Caldeira                   |
+    # | Inspeção                               |
     # | Líquido Penetrante                     |
     # ------------------------------------------
     # insp_cal_lp_mate_fabricacao_id = fields.Many2one(string="Material de Fabricação")
@@ -1028,6 +1192,10 @@ class NrEquipamento(models.Model):
     # | Inspeção da Tubulação                  |
     # | Exame Externo                          |
     # ------------------------------------------
+    insp_tubu_ex_externo = fields.Boolean(string="Exame Externo")
+    insp_tubu_th = fields.Boolean(string="Teste Hidrostático")
+    insp_tubu_lp = fields.Boolean(string="Líquido Penetrante")
+
     insp_tubu_7_1 = fields.Selection([('a', 'A'), ('r', 'R'), ('ar', 'AR'), ('na', 'NA')],
                                      string='7.1. As tubulações ou sistemas de tubulação devem possuir dispositivos de segurança conforme os critérios do código de projeto utilizado, ou em atendimento às recomendações de estudo de análises de cenários de falhas, conforme item 13.6.1.2 da NR-13')
     insp_tubu_7_2 = fields.Selection([('a', 'A'), ('r', 'R'), ('ar', 'AR'), ('na', 'NA')],
@@ -1066,6 +1234,12 @@ class NrEquipamento(models.Model):
     # | Inspeção do Tanque                     |
     # | Exame Externo e Interno                |
     # ------------------------------------------
+    insp_tanque_ex_externo = fields.Boolean(string="Exame Externo")
+    insp_tanque_ex_interno = fields.Boolean(string="Exame Interno")
+    insp_tanque_med_espessura = fields.Boolean(string="Medição de Espessura")
+    insp_tanque_th = fields.Boolean(string="Teste Hidrostático")
+    insp_tanque_lp = fields.Boolean(string="Líquido Penetrante")
+
     insp_tanque_1_1 = fields.Selection([('a', 'A'), ('r', 'R'), ('ar', 'AR'), ('na', 'NA')],
                                        string='1.1 Placa de Identificação indelével, fixada no corpo, em local de fácil acesso e visível com informações mínimas conforme item 13.7.1.1, alinea "b";')
     insp_tanque_1_2 = fields.Selection([('a', 'A'), ('r', 'R'), ('ar', 'AR'), ('na', 'NA')],
@@ -1119,6 +1293,34 @@ class NrEquipamento(models.Model):
     insp_tanque_img_9 = fields.Image(string="Imagem 9")
     insp_tanque_img_10 = fields.Image(string="Imagem 10")
 
+    insp_tanque_interno_1_1 = fields.Selection([('a', 'A'), ('r', 'R'), ('ar', 'AR'), (
+        'na', 'NA')], string='1.1 Costado em boas condições físicas e sem apresentação de trincas, vazamentos e corrosão.')
+    insp_tanque_interno_1_2 = fields.Selection([('a', 'A'), ('r', 'R'), ('ar', 'AR'), (
+        'na', 'NA')], string='1.2 Teto superior/esquerdo em boas condições físicas e sem apresentação de trincas, vazamentos e corrosão.')
+    insp_tanque_interno_1_3 = fields.Selection([('a', 'A'), ('r', 'R'), ('ar', 'AR'), (
+        'na', 'NA')], string='1.3 Fundo em boas condições físicas e sem apresentação de trincas, vazamentos e corrosão.')
+    insp_tanque_interno_1_4 = fields.Selection([('a', 'A'), ('r', 'R'), ('ar', 'AR'), (
+        'na', 'NA')], string='1.4 Bocais do tanque em boas condições físicas e sem apresentação de trincas, vazamentos e corrosão.')
+    insp_tanque_interno_1_5 = fields.Selection([('a', 'A'), ('r', 'R'), ('ar', 'AR'), (
+        'na', 'NA')], string='1.5 Pescador em boas condições físicas e sem apresentação de trincas, vazamentos e corrosão.')
+    insp_tanque_interno_1_6 = fields.Selection([('a', 'A'), ('r', 'R'), ('ar', 'AR'), (
+        'na', 'NA')], string='1.6 Bocas de visita em boas condições físicas e sem apresentação de trincas, vazamentos e corrosão.')
+    insp_tanque_interno_1_7 = fields.Selection([('a', 'A'), ('r', 'R'), ('ar', 'AR'), (
+        'na', 'NA')], string='1.7 Revestimento interno em boas condições físicas e sem apresentação de trincas, vazamentos e corrosão.')
+    insp_tanque_interno_1_8 = fields.Selection([('a', 'A'), ('r', 'R'), ('ar', 'AR'), (
+        'na', 'NA')], string='1.8 Acessórios internos (serpentina e suportação) em boas condições físicas e sem apresentação de trincas, vazamentos e corrosão.')
+
+    insp_tanque_interno_img_1 = fields.Image(string="Imagem 1")
+    insp_tanque_interno_img_2 = fields.Image(string="Imagem 2")
+    insp_tanque_interno_img_3 = fields.Image(string="Imagem 3")
+    insp_tanque_interno_img_4 = fields.Image(string="Imagem 4")
+    insp_tanque_interno_img_5 = fields.Image(string="Imagem 5")
+    insp_tanque_interno_img_6 = fields.Image(string="Imagem 6")
+    insp_tanque_interno_img_7 = fields.Image(string="Imagem 7")
+    insp_tanque_interno_img_8 = fields.Image(string="Imagem 8")
+    insp_tanque_interno_img_9 = fields.Image(string="Imagem 9")
+    insp_tanque_interno_img_10 = fields.Image(string="Imagem 10")
+
     # ------------------------------------------
     # | Inspeção do PI                         |
     # |                                        |
@@ -1148,8 +1350,8 @@ class NrEquipamento(models.Model):
     insp_psv_mola_desgastes = fields.Boolean(string="Mola com Desgastes")
     insp_psv_sede_danificada = fields.Boolean(string="Sede Danificada")
     insp_psv_juntas_rompidas = fields.Boolean(string="Juntas Rompidas")
-    insp_psv_rosca_bocal = fields.Boolean(string="Rosca do Bocal")
 
+    insp_psv_rosca_bocal = fields.Boolean(string="Rosca do Bocal")
     insp_psv_haste_empenada = fields.Boolean(string="Haste Empenada")
     insp_psv_parafuso_ajuste_dani = fields.Boolean(
         string="Parafuso de Ajuste Danificado")

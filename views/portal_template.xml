@@ -1,0 +1,504 @@
+<?xml version='1.0' encoding='utf-8'?>
+<odoo>
+    <template id="portal_my_home" name="Equipamento(s)" inherit_id="portal.portal_my_home"
+        customize_show="True" priority="0">
+        <xpath expr="//div[hasclass('o_portal_docs')]" position="inside">
+            <t t-call="portal.portal_docs_entry">
+                <t t-set="url">/my/equip <!--&amp;--></t>
+                <t t-set="title">Equipamento(s)</t>
+                <t t-set="placeholder_count" t-value="'equipamento_count'" />
+            </t>
+        </xpath>
+    </template>
+
+    <template id="portal_breadcrumbs" inherit_id="portal.portal_breadcrumbs">
+        <xpath expr="//ol[hasclass('o_portal_submenu')]" position="inside">
+            <li t-if="page_name == 'equipamento_list_view'" class="breadcrumb-item">Equipamentos</li>
+            <li t-if="page_name == 'equipamento_form_view'" class="breadcrumb-item">
+                <a href="/my/equip">Equipamento</a>
+            </li>
+        </xpath>
+    </template>
+
+    <template id="wb_equipamento_list_view_portal">
+        <t t-call="portal.portal_layout">
+            <form string="Dashboard">
+                <board>
+                </board>
+            </form>
+            <section style="background-color: #eee;">
+                <div class="container py-5">
+                    <div class="row">
+                        <div class="col">
+                            <nav aria-label="breadcrumb" class="bg-light rounded-3 p-3 mb-4">
+                                <ol class="breadcrumb mb-0">
+                                    <li class="breadcrumb-item">
+                                        <a href="#">Home</a>
+                                    </li>
+                                    <li class="breadcrumb-item">
+                                        <a href="#">User</a>
+                                    </li>
+                                    <li class="breadcrumb-item active" aria-current="page">User
+                                        Profile</li>
+                                </ol>
+                            </nav>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-lg-4">
+                            <div class="card mb-4">
+                                <div class="card-body text-center">
+                                    <img
+                                        src="https://mdbcdn.b-cdn.net/img/Photos/new-templates/bootstrap-chat/ava3.webp"
+                                        alt="avatar"
+                                        class="rounded-circle img-fluid" style="width: 150px;" />
+                                    <h5 class="my-3">John Smith</h5>
+                                    <p class="text-muted mb-1">Full Stack Developer</p>
+                                    <p class="text-muted mb-4">Bay Area, San Francisco, CA</p>
+                                    <div class="d-flex justify-content-center mb-2">
+                                        <button type="button" class="btn btn-primary">Follow</button>
+                                        <button type="button" class="btn btn-outline-primary ms-1">
+                                            Message</button>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="card mb-4 mb-lg-0">
+                                <div class="card-body p-0">
+                                    <ul class="list-group list-group-flush rounded-3">
+                                        <li
+                                            class="list-group-item d-flex justify-content-between align-items-center p-3">
+                                            <i class="fas fa-globe fa-lg text-warning"></i>
+                                            <p class="mb-0">https://mdbootstrap.com</p>
+                                        </li>
+                                        <li
+                                            class="list-group-item d-flex justify-content-between align-items-center p-3">
+                                            <i class="fab fa-github fa-lg" style="color: #333333;"></i>
+                                            <p class="mb-0">mdbootstrap</p>
+                                        </li>
+                                        <li
+                                            class="list-group-item d-flex justify-content-between align-items-center p-3">
+                                            <i class="fab fa-twitter fa-lg" style="color: #55acee;"></i>
+                                            <p class="mb-0">@mdbootstrap</p>
+                                        </li>
+                                        <li
+                                            class="list-group-item d-flex justify-content-between align-items-center p-3">
+                                            <i class="fab fa-instagram fa-lg"
+                                                style="color: #ac2bac;"></i>
+                                            <p class="mb-0">mdbootstrap</p>
+                                        </li>
+                                        <li
+                                            class="list-group-item d-flex justify-content-between align-items-center p-3">
+                                            <i class="fab fa-facebook-f fa-lg"
+                                                style="color: #3b5998;"></i>
+                                            <p class="mb-0">mdbootstrap</p>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-lg-8">
+                            <div class="card mb-4">
+                                <div class="card-body">
+                                    <div class="row">
+                                        <div class="col-sm-3">
+                                            <p class="mb-0">Full Name</p>
+                                        </div>
+                                        <div class="col-sm-9">
+                                            <p class="text-muted mb-0">Johnatan Smith</p>
+                                        </div>
+                                    </div>
+                                    <hr>
+                                        <div class="row">
+                                            <div class="col-sm-3">
+                                                <p class="mb-0">Email</p>
+                                            </div>
+                                            <div class="col-sm-9">
+                                                <p class="text-muted mb-0">example@example.com</p>
+                                            </div>
+                                        </div>
+                                    </hr>
+                                    <div class="row">
+                                        <div class="col-sm-3">
+                                            <p class="mb-0">Phone</p>
+                                        </div>
+                                        <div class="col-sm-9">
+                                            <p class="text-muted mb-0">(097) 234-5678</p>
+                                        </div>
+                                    </div>
+                                    <hr>
+                                        <div class="row">
+                                            <div class="col-sm-3">
+                                                <p class="mb-0">Mobile</p>
+                                            </div>
+                                            <div class="col-sm-9">
+                                                <p class="text-muted mb-0">(098) 765-4321</p>
+                                            </div>
+                                        </div>
+                                    </hr>
+                                    <div class="row">
+                                        <div class="col-sm-3">
+                                            <p class="mb-0">Address</p>
+                                        </div>
+                                        <div class="col-sm-9">
+                                            <p class="text-muted mb-0">Bay Area, San Francisco, CA</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="card mb-4 mb-md-0">
+                                        <div class="card-body">
+                                            <p class="mb-4"><span
+                                                    class="text-primary font-italic me-1">assigment</span>
+                                                Project Status </p>
+                                            <p class="mb-1" style="font-size: .77rem;">Web Design</p>
+                                            <div class="progress rounded" style="height: 5px;">
+                                                <div class="progress-bar" role="progressbar"
+                                                    style="width: 80%" aria-valuenow="80"
+                                                    aria-valuemin="0" aria-valuemax="100"></div>
+                                            </div>
+                                            <p class="mt-4 mb-1" style="font-size: .77rem;">Website
+                                                Markup</p>
+                                            <div class="progress rounded" style="height: 5px;">
+                                                <div class="progress-bar" role="progressbar"
+                                                    style="width: 72%" aria-valuenow="72"
+                                                    aria-valuemin="0" aria-valuemax="100"></div>
+                                            </div>
+                                            <p class="mt-4 mb-1" style="font-size: .77rem;">One Page</p>
+                                            <div class="progress rounded" style="height: 5px;">
+                                                <div class="progress-bar" role="progressbar"
+                                                    style="width: 89%" aria-valuenow="89"
+                                                    aria-valuemin="0" aria-valuemax="100"></div>
+                                            </div>
+                                            <p class="mt-4 mb-1" style="font-size: .77rem;">Mobile
+                                                Template</p>
+                                            <div class="progress rounded" style="height: 5px;">
+                                                <div class="progress-bar" role="progressbar"
+                                                    style="width: 55%" aria-valuenow="55"
+                                                    aria-valuemin="0" aria-valuemax="100"></div>
+                                            </div>
+                                            <p class="mt-4 mb-1" style="font-size: .77rem;">Backend
+                                                API</p>
+                                            <div class="progress rounded mb-2" style="height: 5px;">
+                                                <div class="progress-bar" role="progressbar"
+                                                    style="width: 66%" aria-valuenow="66"
+                                                    aria-valuemin="0" aria-valuemax="100"></div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="card mb-4 mb-md-0">
+                                        <div class="card-body">
+                                            <p class="mb-4"><span
+                                                    class="text-primary font-italic me-1">assigment</span>
+                                                Project Status </p>
+                                            <p class="mb-1" style="font-size: .77rem;">Web Design</p>
+                                            <div class="progress rounded" style="height: 5px;">
+                                                <div class="progress-bar" role="progressbar"
+                                                    style="width: 80%" aria-valuenow="80"
+                                                    aria-valuemin="0" aria-valuemax="100"></div>
+                                            </div>
+                                            <p class="mt-4 mb-1" style="font-size: .77rem;">Website
+                                                Markup</p>
+                                            <div class="progress rounded" style="height: 5px;">
+                                                <div class="progress-bar" role="progressbar"
+                                                    style="width: 72%" aria-valuenow="72"
+                                                    aria-valuemin="0" aria-valuemax="100"></div>
+                                            </div>
+                                            <p class="mt-4 mb-1" style="font-size: .77rem;">One Page</p>
+                                            <div class="progress rounded" style="height: 5px;">
+                                                <div class="progress-bar" role="progressbar"
+                                                    style="width: 89%" aria-valuenow="89"
+                                                    aria-valuemin="0" aria-valuemax="100"></div>
+                                            </div>
+                                            <p class="mt-4 mb-1" style="font-size: .77rem;">Mobile
+                                                Template</p>
+                                            <div class="progress rounded" style="height: 5px;">
+                                                <div class="progress-bar" role="progressbar"
+                                                    style="width: 55%" aria-valuenow="55"
+                                                    aria-valuemin="0" aria-valuemax="100"></div>
+                                            </div>
+                                            <p class="mt-4 mb-1" style="font-size: .77rem;">Backend
+                                                API</p>
+                                            <div class="progress rounded mb-2" style="height: 5px;">
+                                                <div class="progress-bar" role="progressbar"
+                                                    style="width: 66%" aria-valuenow="66"
+                                                    aria-valuemin="0" aria-valuemax="100"></div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+            <t t-call="portal.portal_table">
+                <thead>
+                    <tr class="active">
+                        <th class="text-center">Nome</th>
+                        <th class="text-center">Descrição</th>
+                        <th class="text-center">Condição</th>
+                        <th class="text-center">ID</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <t t-foreach="equipamentos" t-as="equipamento"
+                        t-if="equipamentos.cliente_propri == user_id.partner_id.parent_id">
+                        <tr>
+                            <td class="text-center">
+                                <a t-attf-href="/my/equip/#{equipamento.equipamento_id}">
+                                    <t t-out="equipamento.name" />
+                                </a>
+                            </td>
+                            <td
+                                class="text-center">
+                                <t t-out="equipamento.desc_equip" />
+                            </td>
+                            <td
+                                class="text-center">
+                                <t t-if="equipamento.state == 'em_adequacao'">
+                                    <span class="badge badge-pill badge-info"
+                                        title="Current stage of the task">
+                                        EM ADEQUAÇÃO
+                                    </span>
+                                </t>
+                                <t t-elif="equipamento.state == 'aprovado'">
+                                    <span class="badge badge-pill badge-success"
+                                        title="Current stage of the task">
+                                        APROVADO
+                                    </span>
+                                </t>
+                                <t t-elif="equipamento.state == 'reprovado'">
+                                    <span class="badge badge-pill badge-danger"
+                                        title="Current stage of the task">
+                                        REPROVADO
+                                    </span>
+                                </t>
+                                <t t-elif="equipamento.state == 'desativado'">
+                                    <span class="badge badge-pill badge-warning"
+                                        title="Current stage of the task">
+                                        DESATIVADO
+                                    </span>
+                                </t>
+                                <t t-else="equipamento.state == 'desenquadrado'">
+                                    <span class="badge badge-pill badge-warning"
+                                        title="Current stage of the task">
+                                        DESENQUADRADO
+                                    </span>
+                                </t>
+                            </td>
+                            <td
+                                class="text-center">
+                                <t t-out="equipamento.equipamento_id" />
+                            </td>
+                        </tr>
+                    </t>
+                </tbody>
+            </t>
+        </t>
+    </template>
+
+    <template id="wb_equipamento_form_view_portal" inherit_id="portal.portal_sidebar">
+        <xpath expr="//div[hasclass('o_portal_sidebar')]" position="inside">
+            <t t-if="page_name == 'equipamento_form_view'">
+                <section style="background-color: #eee;">
+                    <div class="container py-5">
+                        <div class="row">
+                            <div class="col-lg-4">
+                                <div class="card mb-12">
+                                    <div class="card-body text-center">
+                                        <!-- <img
+                                            src="https://mdbcdn.b-cdn.net/img/Photos/new-templates/bootstrap-chat/ava3.webp"
+                                            alt="avatar"
+                                            class="rounded-circle img-fluid" style="width: 150px;" /> -->
+                                        <div class="flex-grow-0"
+                                            t-if="equipamentos.imagem_equip != False">
+                                            <img class="rounded-circle"
+                                                t-att-src="image_data_uri(equipamentos.imagem_equip)"
+                                                height="150" width="150"
+                                            />
+                                        </div>
+                                        <div class="flex-grow-0"
+                                            t-if="equipamentos.imagem_equip == False">
+                                            <img
+                                                src="https://mdbcdn.b-cdn.net/img/Photos/new-templates/bootstrap-chat/ava3.webp"
+                                                alt="avatar"
+                                                class="rounded-circle img-fluid"
+                                                style="width: 150px;" />
+                                        </div>
+                                        <h5 class="my-3">
+                                            <t t-out="equipamentos.name" />
+                                        </h5>
+                                        <!-- <p class="text-muted mb-1">Full Stack Developer</p>
+                                        <p class="text-muted mb-4">Bay Area, San Francisco, CA</p>
+                                        <div class="d-flex justify-content-center mb-2">
+                                            <button type="button" class="btn btn-primary">Follow</button>
+                                            <button type="button"
+                                                class="btn btn-outline-primary ms-1">Message</button>
+                                        </div> -->
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-lg-8">
+                                <div class="card mb-4">
+                                    <div class="card-body">
+                                        <div class="row">
+                                            <div class="col-sm-3">
+                                                <strong>
+                                                    <p class="mb-0">Tag do Equipamento</p>
+                                                </strong>
+                                            </div>
+                                            <div class="col-sm-9">
+                                                <p class="text-muted mb-0">
+                                                    <strong>
+                                                        <t t-out="equipamentos.name" />
+                                                    </strong>
+                                                </p>
+                                            </div>
+                                        </div>
+                                        <hr>
+                                            <div class="row">
+                                                <div class="col-sm-3">
+                                                    <p class="mb-0">Descritivo</p>
+                                                </div>
+                                                <div class="col-sm-9">
+                                                    <p class="text-muted mb-0">
+                                                        <span t-field="equipamentos.desc_equip" />
+                                                    </p>
+                                                </div>
+                                            </div>
+                                            <div class="row" style="margin-top: 10px">
+                                                <div class="col-sm-3">
+                                                    <p class="mb-0">Tipo de Equipamento</p>
+                                                </div>
+                                                <div class="col-sm-9">
+                                                    <p class="text-muted mb-0">
+                                                        <span t-field="equipamentos.tipo_equip" />
+                                                    </p>
+                                                </div>
+                                            </div>
+                                            <div class="row" style="margin-top: 10px">
+                                                <div class="col-sm-3">
+                                                    <p class="mb-0">PMTA</p>
+                                                </div>
+                                                <div class="col-sm-9">
+                                                    <p class="text-muted mb-0"
+                                                        t-if="equipamentos.tipo_equip == 'caldeira'">
+                                                        <span t-field="equipamentos.equip_cal_pmta" />
+                                                    </p>
+                                                    <p class="text-muted mb-0"
+                                                        t-elif="equipamentos.tipo_equip == 'vaso_de_pressao'">
+                                                        <span
+                                                            t-field="equipamentos.equip_vaso_casco_pmta" />
+                                                    </p>
+                                                    <p class="text-muted mb-0"
+                                                        t-elif="equipamentos.tipo_equip == 'vaso_de_pressao' and equipamentos.equip_vaso_casco_tubo == True">
+                                                        <span
+                                                            t-field="equipamentos.equip_vaso_tubo_pmta" />
+                                                    </p>
+                                                    <p class="text-muted mb-0"
+                                                        t-elif="equipamentos.tipo_equip == 'tubulacao'">
+                                                        <span t-field="equipamentos.equip_tubu_pmta" />
+                                                    </p>
+                                                </div>
+                                            </div>
+                                            <div class="row" style="margin-top: 10px">
+                                                <div class="col-sm-3">
+                                                    <p class="mb-0">Pressão de Trabalho</p>
+                                                </div>
+                                                <div class="col-sm-9">
+                                                    <p class="text-muted mb-0"
+                                                        t-if="equipamentos.tipo_equip == 'caldeira'">
+                                                        <span
+                                                            t-field="equipamentos.equip_cal_press_trabalho" />
+                                                    </p>
+                                                    <p class="text-muted mb-0"
+                                                        t-elif="equipamentos.tipo_equip == 'vaso_de_pressao'">
+                                                        <span
+                                                            t-field="equipamentos.equip_vaso_casco_press_trabalho" />
+                                                    </p>
+                                                    <p class="text-muted mb-0"
+                                                        t-elif="equipamentos.tipo_equip == 'vaso_de_pressao' and equipamentos.equip_vaso_casco_tubo == True">
+                                                        > <span
+                                                            t-field="equipamentos.equip_vaso_tubo_press_trabalho" />
+                                                    </p>
+                                                    <p class="text-muted mb-0"
+                                                        t-elif="equipamentos.tipo_equip == 'tubulacao'">
+                                                        <span
+                                                            t-field="equipamentos.equip_tubu_press_trabalho" />
+                                                    </p>
+                                                    <p class="text-muted mb-0"
+                                                        t-if="equipamentos.tipo_equip == 'tanque'">
+                                                        <span
+                                                            t-field="equipamentos.equip_tanque_press_trabalho" />
+                                                    </p>
+                                                </div>
+                                            </div>
+                                        </hr>
+                                        <hr>
+                                            <div class="row" style="margin-top: 10px">
+                                                <div class="col-sm-3">
+                                                    <p class="mb-0">Proprietário</p>
+                                                </div>
+                                                <div class="col-sm-9">
+                                                    <p class="text-muted mb-0">
+                                                        <span t-field="equipamentos.cliente_propri" />
+                                                    </p>
+                                                </div>
+                                            </div>
+                                            <div class="row" style="margin-top: 10px">
+                                                <div class="col-sm-3">
+                                                    <p class="mb-0">Responsável</p>
+                                                </div>
+                                                <div class="col-sm-9">
+                                                    <p class="text-muted mb-0">
+                                                        <t t-out="equipamentos.nome_contato" />
+                                                    </p>
+                                                </div>
+                                            </div>
+                                            <div class="row" style="margin-top: 10px">
+                                                <div class="col-sm-3">
+                                                    <p class="mb-0">E-Mail</p>
+                                                </div>
+                                                <div class="col-sm-9">
+                                                    <p class="text-muted mb-0">
+                                                        <t t-out="equipamentos.email_contato" />
+                                                    </p>
+                                                </div>
+                                            </div>
+                                            <div class="row" style="margin-top: 10px">
+                                                <div class="col-sm-3">
+                                                    <p class="mb-0">Setor/Área/Local</p>
+                                                </div>
+                                                <div class="col-sm-9">
+                                                    <p class="text-muted mb-0">
+                                                        <t t-out="equipamentos.local_instalacao" />
+                                                    </p>
+                                                </div>
+                                            </div>
+                                            <div class="row" style="margin-top: 10px">
+                                                <div class="col-sm-3">
+                                                    <p class="mb-0">Vínculo(s)</p>
+                                                </div>
+                                                <div class="col-sm-9">
+                                                    <p class="text-muted mb-0">
+                                                        <span
+                                                            t-field="equipamentos.equip_relacional_ids" />
+                                                    </p>
+                                                </div>
+                                            </div>
+                                        </hr>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+            </t>
+        </xpath>
+    </template>
+</odoo>
