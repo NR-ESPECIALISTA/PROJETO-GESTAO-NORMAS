@@ -5,7 +5,7 @@
         <xpath expr="//div[hasclass('o_portal_docs')]" position="inside">
             <t t-call="portal.portal_docs_entry">
                 <t t-set="url">/my/equip <!--&amp;--></t>
-                <t t-set="title">Equipamento(s)</t>
+                <t t-set="title">Gestão NR-13</t>
                 <t t-set="placeholder_count" t-value="'equipamento_count'" />
             </t>
         </xpath>
@@ -13,14 +13,114 @@
 
     <template id="portal_breadcrumbs" inherit_id="portal.portal_breadcrumbs">
         <xpath expr="//ol[hasclass('o_portal_submenu')]" position="inside">
-            <li t-if="page_name == 'equipamento_list_view'" class="breadcrumb-item">Equipamentos</li>
+            <li t-if="page_name == 'equipamento_list_dashboard_view'" class="breadcrumb-item">
+                DashBoard
+            </li>
+
             <li t-if="page_name == 'equipamento_form_view'" class="breadcrumb-item">
-                <a href="/my/equip">Equipamento</a>
+                <a href="/my/equip">DashBoard</a>
+            </li>
+            <li t-if="page_name == 'equipamento_form_view'" class="breadcrumb-item">
+                <a href="/my/equip/vaso">Vaso de Pressão</a>
+            </li>
+
+            <li t-if="page_name == 'equipamento_list_vaso_view'" class="breadcrumb-item">
+                <a href="/my/equip">DashBoard</a>
+            </li>
+            <li t-if="page_name == 'equipamento_list_vaso_view'" class="breadcrumb-item">
+                Vaso de Pressão
             </li>
         </xpath>
     </template>
 
-    <template id="wb_equipamento_list_view_portal">
+    <!-- Lista de Visualização do Vaso de Pressão -->
+    <template id="wb_equipamento_list_vaso_view_portal">
+        <!-- <xpath expr="//ol[hasclass('o_portal_submenu')]" position="inside">
+            <h1>TESTE</h1>
+        </xpath> -->
+        <t t-call="portal.portal_layout">
+            <t t-if="page_name == 'equipamento_list_vaso_view'">
+                <t t-call="portal.portal_table">
+                    <thead>
+                        <tr class="active">
+                            <th class="text-center">Nome</th>
+                            <th class="text-center">Descrição</th>
+                            <th class="text-center">Condição</th>
+                            <th class="text-center">ID</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <t t-foreach="equipamentos" t-as="equipamento">
+                            <tr>
+                                <td class="text-center">
+                                    <a t-attf-href="/my/equip/vaso/#{equipamento.equipamento_id}">
+                                        <t t-out="equipamento.name" />
+                                    </a>
+                                </td>
+                                <td
+                                    class="text-center">
+                                    <t t-out="equipamento.desc_equip" />
+                                </td>
+                                <td
+                                    class="text-center">
+                                    <t t-if="equipamento.state == 'em_adequacao'">
+                                        <span class="badge badge-pill badge-info"
+                                            title="Current stage of the task">
+                                            EM ADEQUAÇÃO
+                                        </span>
+                                    </t>
+                                    <t t-elif="equipamento.state == 'aprovado'">
+                                        <span class="badge badge-pill badge-success"
+                                            title="Current stage of the task">
+                                            APROVADO
+                                        </span>
+                                    </t>
+                                    <t t-elif="equipamento.state == 'reprovado'">
+                                        <span class="badge badge-pill badge-danger"
+                                            title="Current stage of the task">
+                                            REPROVADO
+                                        </span>
+                                    </t>
+                                    <t t-elif="equipamento.state == 'desativado'">
+                                        <span class="badge badge-pill badge-warning"
+                                            title="Current stage of the task">
+                                            DESATIVADO
+                                        </span>
+                                    </t>
+                                    <t t-else="equipamento.state == 'desenquadrado'">
+                                        <span class="badge badge-pill badge-warning"
+                                            title="Current stage of the task">
+                                            DESENQUADRADO
+                                        </span>
+                                    </t>
+                                </td>
+                                <td
+                                    class="text-center">
+                                    <t t-out="equipamento.equipamento_id" />
+                                </td>
+                            </tr>
+                        </t>
+                    </tbody>
+                </t>
+            </t>
+        </t>
+    </template>
+
+    <template id="wb_equipamento_dashboard_view_portal">
+        <link rel="stylesheet"
+            href="/NREspecialista/static/src/css/style_dashboard_portal.css" />
+        <link rel="stylesheet"
+            href="/NREspecialista/static/src/css/sb-admin-2.min.css" />
+        <!-- Custom fonts for this template-->
+        <link
+            href="/NREspecialista/static/src/css/all.min.css"
+            rel="stylesheet"
+            type="text/css"
+        />
+        <link
+            href="https://fonts.googleapis.com/css?family=Nunito:200,200i,300,300i,400,400i,600,600i,700,700i,800,800i,900,900i"
+            rel="stylesheet"
+        />
         <t t-call="portal.portal_layout">
             <form string="Dashboard">
                 <board>
@@ -29,22 +129,117 @@
             <section style="background-color: #eee;">
                 <div class="container py-5">
                     <div class="row">
-                        <div class="col">
-                            <nav aria-label="breadcrumb" class="bg-light rounded-3 p-3 mb-4">
-                                <ol class="breadcrumb mb-0">
-                                    <li class="breadcrumb-item">
-                                        <a href="#">Home</a>
-                                    </li>
-                                    <li class="breadcrumb-item">
-                                        <a href="#">User</a>
-                                    </li>
-                                    <li class="breadcrumb-item active" aria-current="page">User
-                                        Profile</li>
-                                </ol>
-                            </nav>
+                        <div class="col-xl-3 col-md-6 mb-4">
+                            <a
+                                t-attf-href="/my/equip/vaso" style="text-decoration: none;">
+                                <div class="card border-left-warning shadow h-100 py-2">
+                                    <div class="card-body">
+                                        <div class="row no-gutters align-items-center">
+                                            <div class="col-4 mr-2">
+                                                <div
+                                                    class="text-xs font-weight-bold text-warning text-uppercase mb-1">
+                                                    Vaso de Pressão
+                                                </div>
+                                                <div class="h5 mb-0 font-weight-bold text-gray-800">
+                                                    <t t-out="total_equipamentos" />
+                                                </div>
+                                            </div>
+                                            <div class="col-7">
+                                                <!-- <i class="fa fa-address-book fa-2x
+                                            text-gray-300"></i> -->
+                                                <img
+                                                    src="/NREspecialista/static/description/vaso_pressao.icon.png"
+                                                    alt="avatar"
+                                                    class="text-gray-300"
+                                                    style="width: 45%; float: right" />
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </a>
+                        </div>
+                        <div class="col-xl-3 col-md-6 mb-4">
+                            <a
+                                t-attf-href="/my/equip/caldeira" style="text-decoration: none;">
+                                <div class="card border-left-warning shadow h-100 py-2">
+                                    <div class="card-body">
+                                        <div class="row no-gutters align-items-center">
+                                            <div class="col-4 mr-2">
+                                                <div
+                                                    class="text-xs font-weight-bold text-warning text-uppercase mb-1">
+                                                    Caldeira
+                                                </div>
+                                                <div class="h5 mb-0 font-weight-bold text-gray-800">
+                                                    2
+                                                </div>
+                                            </div>
+                                            <div class="col-7">
+                                                <img
+                                                    src="/NREspecialista/static/description/caldeira.png"
+                                                    alt="avatar"
+                                                    class="text-gray-300"
+                                                    style="width: 45%; float: right;" />
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </a>
+                        </div>
+                        <div class="col-xl-3 col-md-6 mb-4">
+                            <a
+                                t-attf-href="/my/equip/tubulacao" style="text-decoration: none;">
+                                <div class="card border-left-warning shadow h-100 py-2">
+                                    <div class="card-body">
+                                        <div class="row no-gutters align-items-center">
+                                            <div class="col-4 mr-2">
+                                                <div
+                                                    class="text-xs font-weight-bold text-warning text-uppercase mb-1">
+                                                    Tubulação
+                                                </div>
+                                                <div class="h5 mb-0 font-weight-bold text-gray-800">
+                                                    5
+                                                </div>
+                                            </div>
+                                            <div class="col-7">
+                                                <img
+                                                    src="/NREspecialista/static/description/tubulacao.jpg"
+                                                    alt="avatar"
+                                                    class="text-gray-300"
+                                                    style="width: 45%; float: right" />
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </a>
+                        </div>
+                        <div class="col-xl-3 col-md-6 mb-4">
+                            <a
+                                t-attf-href="/my/equip/tanque" style="text-decoration: none;">
+                                <div class="card border-left-warning shadow h-100 py-2">
+                                    <div class="card-body">
+                                        <div class="row no-gutters align-items-center">
+                                            <div class="col-4 mr-2">
+                                                <div
+                                                    class="text-xs font-weight-bold text-warning text-uppercase mb-1">
+                                                    Tanque
+                                                </div>
+                                                <div class="h5 mb-0 font-weight-bold text-gray-800">
+                                                    2
+                                                </div>
+                                            </div>
+                                            <div class="col-7">
+                                                <img
+                                                    src="/NREspecialista/static/description/tanque.png"
+                                                    alt="avatar"
+                                                    class="text-gray-300"
+                                                    style="width: 45%; float: right" />
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </a>
                         </div>
                     </div>
-
                     <div class="row">
                         <div class="col-lg-4">
                             <div class="card mb-4">
@@ -236,69 +431,6 @@
                     </div>
                 </div>
             </section>
-            <t t-call="portal.portal_table">
-                <thead>
-                    <tr class="active">
-                        <th class="text-center">Nome</th>
-                        <th class="text-center">Descrição</th>
-                        <th class="text-center">Condição</th>
-                        <th class="text-center">ID</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <t t-foreach="equipamentos" t-as="equipamento"
-                        t-if="equipamentos.cliente_propri == user_id.partner_id.parent_id">
-                        <tr>
-                            <td class="text-center">
-                                <a t-attf-href="/my/equip/#{equipamento.equipamento_id}">
-                                    <t t-out="equipamento.name" />
-                                </a>
-                            </td>
-                            <td
-                                class="text-center">
-                                <t t-out="equipamento.desc_equip" />
-                            </td>
-                            <td
-                                class="text-center">
-                                <t t-if="equipamento.state == 'em_adequacao'">
-                                    <span class="badge badge-pill badge-info"
-                                        title="Current stage of the task">
-                                        EM ADEQUAÇÃO
-                                    </span>
-                                </t>
-                                <t t-elif="equipamento.state == 'aprovado'">
-                                    <span class="badge badge-pill badge-success"
-                                        title="Current stage of the task">
-                                        APROVADO
-                                    </span>
-                                </t>
-                                <t t-elif="equipamento.state == 'reprovado'">
-                                    <span class="badge badge-pill badge-danger"
-                                        title="Current stage of the task">
-                                        REPROVADO
-                                    </span>
-                                </t>
-                                <t t-elif="equipamento.state == 'desativado'">
-                                    <span class="badge badge-pill badge-warning"
-                                        title="Current stage of the task">
-                                        DESATIVADO
-                                    </span>
-                                </t>
-                                <t t-else="equipamento.state == 'desenquadrado'">
-                                    <span class="badge badge-pill badge-warning"
-                                        title="Current stage of the task">
-                                        DESENQUADRADO
-                                    </span>
-                                </t>
-                            </td>
-                            <td
-                                class="text-center">
-                                <t t-out="equipamento.equipamento_id" />
-                            </td>
-                        </tr>
-                    </t>
-                </tbody>
-            </t>
         </t>
     </template>
 
@@ -333,6 +465,32 @@
                                         <h5 class="my-3">
                                             <t t-out="equipamentos.name" />
                                         </h5>
+                                        <!-- <t t-set="report_url"
+                                            t-value="equipamentos.get_portal_url(report_type='pdf', download=True)" />
+                                        <div
+                                            class="d-flex flex-wrap align-items-center justify-content-between">
+                                            <div>
+                                                <a t-att-href="report_url">
+                                                    <span t-esc="equipamentos.name" />
+                                                </a>
+                                            </div>
+                                        </div> -->
+                                        <!-- <a
+                                            class="list-group-item list-group-item-action d-flex align-items-center oe_attachments py-1 px-2"
+                                            t-foreach='task.attachment_ids' t-as='attachment'
+                                            t-attf-href="/web/content/#{attachment.id}"
+                                            target="_blank" data-no-post-process="">
+                                            <div
+                                                class='oe_attachment_embedded o_image o_image_small mr-2 mr-lg-3'
+                                                t-att-title="attachment.name"
+                                                t-att-data-mimetype="attachment.mimetype"
+                                                t-attf-data-src="/web/image/#{attachment.id}/50x40" />
+                                            <div class='oe_attachment_name text-truncate'>
+                                                <t t-esc='attachment.name' />
+                                            </div>
+                                        </a> -->
+                                        <a href="/my/equip/1" download="teste">
+                                            Download</a>
                                         <!-- <p class="text-muted mb-1">Full Stack Developer</p>
                                         <p class="text-muted mb-4">Bay Area, San Francisco, CA</p>
                                         <div class="d-flex justify-content-center mb-2">
@@ -496,6 +654,13 @@
                                 </div>
                             </div>
                         </div>
+                    </div>
+                    <!-- chatter -->
+                    <div id="sale_order_communication" class="mt-4">
+                        <h2>Histórico</h2>
+                        <t t-call="portal.message_thread">
+                            <t t-set="object" t-value="nr_equipamento" />
+                        </t>
                     </div>
                 </section>
             </t>

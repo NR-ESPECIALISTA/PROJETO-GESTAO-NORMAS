@@ -3,7 +3,7 @@
 
     <menuitem
         id="menu_nr_root"
-        name="Gestão de Normas"
+        name="Gestão NR-13"
         web_icon="NREspecialista,static/description/icon.png"
         sequence="0" />
 
