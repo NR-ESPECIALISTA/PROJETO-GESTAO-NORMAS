@@ -1,6 +1,7 @@
 <?xml version='1.0' encoding='utf-8'?>
 <odoo>
 
+    <!-- Visão em lista dos Equipamentos -->
     <record id="view_nr_equipamento_tree" model="ir.ui.view">
         <field name="name">nr.equipamento.form</field>
         <field name="model">nr.equipamento</field>
@@ -14,13 +15,55 @@
                     decoration-info="state == 'em_adequacao'"
                     decoration-danger="state == 'reprovado'"
                     decoration-warning="state == 'desativado' or state == 'desenquadrado'" />
-                <!-- <field name="activity_ids" string="Pendências" /> -->
                 <field name="imagem_equip" widget="image" string="Imagem"
                     options="{'size': [150, 150]}" />
             </tree>
         </field>
     </record>
 
+    <!-- Visão em Kanbam dos Equipamentos -->
+    <record id="nr_equipamento_view_kanban" model="ir.ui.view">
+        <field name="name">nr.equipamento.view.kanban</field>
+        <field name="model">nr.equipamento</field>
+        <field name="arch" type="xml">
+            <kanban>
+                <templates>
+                    <t t-name="kanban-box">
+                        <div t-attf-class="oe_kanban_global_click">
+                            <div class="oe_kanban_details">
+                                <strong class="o_kanban_record_tittle">
+                                    <div class="o_primary">
+                                        <a type="edit">
+                                            <field name="name" />
+                                        </a>
+                                    </div>
+                                </strong>
+                                <div class="o_secondary">
+                                    <field name="desc_equip" />
+                                </div>
+                                <div>
+                                    <field name="state" widget="badge"
+                                        decoration-success="state == 'aprovado'"
+                                        decoration-info="state == 'em_adequacao'"
+                                        decoration-danger="state == 'reprovado'"
+                                        decoration-warning="state == 'desativado' or state == 'desenquadrado'" />
+                                </div>
+                                <div>
+                                    <field name="local_instalacao" />
+                                </div>
+                                <div>
+                                    <field name="imagem_equip" widget="image"
+                                        options="{'size': [150, 150]}" />
+                                </div>
+                            </div>
+                        </div>
+                    </t>
+                </templates>
+            </kanban>
+        </field>
+    </record>
+
+    <!-- Formulario dos Equipamentos -->
     <record id="view_nr_equipamento_form" model="ir.ui.view">
         <field name="name">nr.equipamento.form</field>
         <field name="model">nr.equipamento</field>
@@ -31,15 +74,13 @@
                 </header>
                 <sheet>
                     <div class="oe_button_box" name="button_box">
-                        <button class="oe_stat_button" type="object" name="action_inspecao" icon="fa-star">
-                            <field string="Inspeção" name="equip_inspecao" widget="statinfo"/>
+                        <button string="teste">
+                            <div class="o_field_widget o_stat_info">
+                                <span class="o_stat_text">Customer</span>
+                                <span class="o_stat_text">Preview</span>
+                            </div>
                         </button>
-
-                        <button class="oe_stat_button" type="object" name="action_documentacao" icon="fa-star">
-                            <field string="Documentação" name="equip_documentacao" widget="statinfo"/>
-                        </button>
-                    </div>                                                       
-
+                    </div>
                     <h1>
                         <field name="name" placeholder="Tag do Equipamento" class="oe_title" />
                         <field name="imagem_equip" widget="image" class="oe_avatar"
@@ -48,8 +89,10 @@
                     <group>
                         <div>
                             <group>
-                                <field name="responsavel_id" widget="many2one_avatar" />
-                                <field name="contrato_id" />
+                                <field name="responsavel_id" widget="many2one_avatar"
+                                    options="{'no_create': True, 'no_create_edit':True}" />
+                                <field
+                                    name="equipamento_id" attrs="{'invisible': True}" />
                             </group>
                             <group string="Normas Gerenciadas">
                                 <field name="nr13" />
@@ -68,12 +111,21 @@
                     <group>
                         <group string="Informações do Equipamento">
                             <field name="desc_equip" />
+                            <field name="normas_fabri_ids" widget="many2many_tags" />
+                            <field name="normas_calibracao_ids" widget="many2many_tags"
+                                attrs="{'invisible': ['&amp;', ('tipo_equip', '!=', 'psv'), ('tipo_equip', '!=', 'pi')]}" />
+                            <field name="fabricante_id" />
                             <field name="ano_fabri" />
                             <field name="num_serie" />
                             <field name="lote" />
                         </group>
                         <group string="Informações do Contato">
-                            <field name="cliente_propri" />
+                            <field name="cliente_propri" widget="res_partner_many2one"
+                                placeholder="Nome da Companhia..."
+                                domain="[('is_company', '=', True)]"
+                                context="{'default_is_company': True, 'show_vat': True}" />
+                            <field name="nome_contato" />
+                            <field name="email_contato" />
                             <field name="depar_respon" />
                             <field name="local_instalacao" />
                         </group>
@@ -87,6 +139,10 @@
                                     options="{'horizontal': true}" />
                                 <field name="equip_instrumen_pi" widget="radio"
                                     options="{'horizontal': true}" />
+                                <field name="equip_relacional_ids"
+                                    domain="['&amp;', ('tipo_equip', '!=', 'psv'), ('tipo_equip', '!=', 'pi')]"
+                                    widget="many2many_tags" />
+                                <!-- é para ser diferente de psv e pi ou tem que ser igual a eles -->
                             </group>
                             <group string="Dados Técnicos da Caldeira"
                                 attrs="{'invisible': ['|', ('tipo_equip', '!=', 'caldeira'),
@@ -98,12 +154,14 @@
                                 <field name="equip_cal_temp_projeto" />
                                 <field name="equip_cal_temp_operacao" />
                                 <field name="equip_cal_volume" />
+                                <field name="equip_cal_material_fabri_ids" widget="many2many_tags" />
                                 <field name="equip_cal_ambiente_instalacao" widget="radio"
                                     options="{'horizontal': true}" />
+                                <field name="equip_cal_tipo_fluido_id" />
                             </group>
                         </div>
                         <group>
-
+                            <!-- Parte da Direita da view -->
                         </group>
                     </group>
                     <group>
@@ -119,7 +177,13 @@
                             <field name="equip_vaso_casco_compri_altura" />
                             <field name="equip_vaso_casco_diametro" />
                             <field name="equip_vaso_casco_volume" />
+                            <field name="equip_vaso_casco_mat_fabricacao_ids"
+                                widget="many2many_tags" />
                             <field name="equip_vaso_casco_tipo_fluidos" />
+                            <field name="equip_vaso_casco_cal_pxv" readonly="1" />
+                            <field name="equip_vaso_casco_pxv_class" readonly="1" />
+                            <field name="equip_vaso_casco_grupo_risco" readonly="1" />
+                            <field name="equip_vaso_casco_classe_fluido" readonly="1" />
                             <field name="equip_vaso_casco_categoria" />
                         </group>
                         <group string="Dados Técnicos do Vaso - Lado Tubo"
@@ -131,7 +195,12 @@
                             <field name="equip_vaso_tubo_temp_projeto" />
                             <field name="equip_vaso_tubo_temp_operacao" />
                             <field name="equip_vaso_tubo_volume" />
+                            <field name="equip_vaso_tubo_mat_fabricacao_ids" widget="many2many_tags" />
                             <field name="equip_vaso_tubo_tipo_fluido" />
+                            <field name="equip_vaso_tubo_cal_pxv" readonly="1" />
+                            <field name="equip_vaso_tubo_pxv_class" readonly="1" />
+                            <field name="equip_vaso_tubo_grupo_risco" readonly="1" />
+                            <field name="equip_vaso_tubo_classe_fluido" readonly="1" />
                             <field name="equip_vaso_tubo_categoria" />
                         </group>
                     </group>
@@ -139,12 +208,15 @@
                         <group string="Dados Técnicos da Tubulação"
                             attrs="{'invisible': ['|', ('tipo_equip', '!=', 'tubulacao'),
                         ('tipo_equip', '=', False)]}">
+                            <field name="equip_tubu_linhas_ramais_ids" widget="many2many_tags" />
                             <field name="equip_tubu_pmta" />
                             <field name="equip_tubu_press_trabalho" />
                             <field name="equip_tubu_press_teste" />
                             <field name="equip_tubu_temp_projeto" />
                             <field name="equip_tubu_temp_operacao" />
                             <field name="equip_tubu_volume" />
+                            <field name="equip_tubu_mat_fabricacao_ids" widget="many2many_tags" />
+                            <field name="equip_tubu_tipo_fluido_id" />
                             <field name="equip_tubu_isolamento" widget="radio"
                                 options="{'horizontal': true}" />
                         </group>
@@ -159,6 +231,8 @@
                             <field name="equip_tanque_volume" />
                             <field name="equip_tanque_altura" />
                             <field name="equip_tanque_diametro_interno" />
+                            <field name="equip_tanque_mat_fabricacao_ids" widget="many2many_tags" />
+                            <field name="equip_tanque_tipo_fluido_id" />
                         </group>
                     </group>
                     <group>
@@ -175,6 +249,8 @@
                                 options="{'horizontal': true}" />
                             <field name="equip_psv_castelo" widget="radio"
                                 options="{'horizontal': true}" />
+                            <field name="equip_psv_mat_fabricacao_ids" widget="many2many_tags" />
+                            <field name="equip_psv_tipo_fluido_id" />
                         </group>
                     </group>
                     <group>
@@ -190,6 +266,7 @@
                             <field name="equip_pi_posicao" />
                             <field name="equip_pi_conexao" />
                             <field name="equip_pi_temp_trabalho" />
+                            <field name="equip_pi_tipo_fluido_id" />
                         </group>
                     </group>
                     <notebook>
@@ -551,22 +628,297 @@
                         ('tipo_equip', '=', False)]}">
                             <group string="Inspeção do Vaso de Pressão">
                                 <group>
-
+                                    <field name="insp_tipo_inspecao" widget="radio" />
                                 </group>
-                                <group string="Exames e Ensaios Realizados">
-
+                                <group string="Exames e Ensaios Realizados"
+                                    attrs="{'invisible': [('insp_tipo_inspecao', '=', False)]}">
+                                    <field name="insp_vaso_ex_externo" />
+                                    <field name="insp_vaso_ex_interno" />
+                                    <field name="insp_vaso_med_espessura" />
+                                    <field name="insp_vaso_th" />
+                                    <field name="insp_vaso_lp" />
                                 </group>
                             </group>
+                            <notebook>
+                                <page string="Exame Externo" style="font-size: 15px"
+                                    attrs="{'invisible': [('insp_vaso_ex_externo', '!=', True)]}">
+                                    <group string="1. Identificação do Equipamento">
+                                        <field name="insp_vaso_1_1" widget="radio"
+                                            options="{'horizontal': true}" />
+                                        <field name="insp_vaso_1_2" widget="radio"
+                                            options="{'horizontal': true}" />
+                                    </group>
+                                    <group></group>
+                                    <group string="2. Instalação">
+                                        <field name="insp_vaso_2_1" widget="radio"
+                                            options="{'horizontal': true}" />
+                                        <field name="insp_vaso_2_2" widget="radio"
+                                            options="{'horizontal': true}" />
+                                        <field name="insp_vaso_2_3" widget="radio"
+                                            options="{'horizontal': true}" />
+                                        <field name="insp_vaso_2_4" widget="radio"
+                                            options="{'horizontal': true}" />
+                                        <field name="insp_vaso_2_5" widget="radio"
+                                            options="{'horizontal': true}" />
+                                        <field name="insp_vaso_2_6" widget="radio"
+                                            options="{'horizontal': true}" />
+                                    </group>
+                                    <group></group>
+                                    <group string="3. Segurança na Operação">
+                                        <field name="insp_vaso_3_1" widget="radio"
+                                            options="{'horizontal': true}" />
+                                        <field name="insp_vaso_3_2" widget="radio"
+                                            options="{'horizontal': true}" />
+                                    </group>
+                                    <group></group>
+                                    <group string="4. Exame Externo">
+                                        <field name="insp_vaso_4_1" widget="radio"
+                                            options="{'horizontal': true}" />
+                                        <field name="insp_vaso_4_2" widget="radio"
+                                            options="{'horizontal': true}" />
+                                        <field name="insp_vaso_4_3" widget="radio"
+                                            options="{'horizontal': true}" />
+                                        <field name="insp_vaso_4_4" widget="radio"
+                                            options="{'horizontal': true}" />
+                                        <field name="insp_vaso_4_5" widget="radio"
+                                            options="{'horizontal': true}" />
+                                        <field name="insp_vaso_4_6" widget="radio"
+                                            options="{'horizontal': true}" />
+                                        <field name="insp_vaso_4_7" widget="radio"
+                                            options="{'horizontal': true}" />
+                                        <field name="insp_vaso_4_8" widget="radio"
+                                            options="{'horizontal': true}" />
+                                        <field name="insp_vaso_4_9" widget="radio"
+                                            options="{'horizontal': true}" />
+                                        <field name="insp_vaso_4_10" widget="radio"
+                                            options="{'horizontal': true}" />
+                                        <field name="insp_vaso_4_11" widget="radio"
+                                            options="{'horizontal': true}" />
+                                        <field name="insp_vaso_4_12" widget="radio"
+                                            options="{'horizontal': true}" />
+                                        <field name="insp_vaso_ex_externo_img_1"
+                                            options="{'size': [200, 200]}" widget="image" />
+                                        <field name="insp_vaso_ex_externo_img_2"
+                                            options="{'size': [200, 200]}" widget="image" />
+                                        <field name="insp_vaso_ex_externo_img_3"
+                                            options="{'size': [200, 200]}" widget="image" />
+                                        <field name="insp_vaso_ex_externo_img_4"
+                                            options="{'size': [200, 200]}" widget="image" />
+                                        <field name="insp_vaso_ex_externo_img_5"
+                                            options="{'size': [200, 200]}" widget="image" />
+                                        <field name="insp_vaso_ex_externo_img_6"
+                                            options="{'size': [200, 200]}" widget="image" />
+                                    </group>
+                                </page>
+                                <page string="Exame Interno" style="font-size: 15px"
+                                    attrs="{'invisible': [('insp_vaso_ex_interno', '!=', True)]}">
+                                    <group string="5. Exame Interno">
+                                        <field name="insp_vaso_5_1" widget="radio"
+                                            options="{'horizontal': true}" />
+                                        <field name="insp_vaso_5_2" widget="radio"
+                                            options="{'horizontal': true}" />
+                                        <field name="insp_vaso_5_3" widget="radio"
+                                            options="{'horizontal': true}" />
+                                        <field name="insp_vaso_5_4" widget="radio"
+                                            options="{'horizontal': true}" />
+                                        <field name="insp_vaso_5_5" widget="radio"
+                                            options="{'horizontal': true}" />
+                                        <field name="insp_vaso_5_6" widget="radio"
+                                            options="{'horizontal': true}" />
+                                        <field name="insp_vaso_ex_interno_img_1"
+                                            options="{'size': [200, 200]}" widget="image" />
+                                        <field name="insp_vaso_ex_interno_img_2"
+                                            options="{'size': [200, 200]}" widget="image" />
+                                        <field name="insp_vaso_ex_interno_img_3"
+                                            options="{'size': [200, 200]}" widget="image" />
+                                        <field name="insp_vaso_ex_interno_img_4"
+                                            options="{'size': [200, 200]}" widget="image" />
+                                    </group>
+                                </page>
+                                <page string="Medição de Espessura por Ultrassom"
+                                    style="font-size: 15px"
+                                    attrs="{'invisible': [('insp_vaso_med_espessura', '!=', True)]}">
+                                    <group>
+                                        <group
+                                            string="Medição de Espessura - Tampo Esquerdo/Superior">
+                                            <field name="insp_med_esp_esquerdo_0" />
+                                            <field name="insp_med_esp_esquerdo_90" />
+                                            <field name="insp_med_esp_esquerdo_180" />
+                                            <field name="insp_med_esp_esquerdo_270" />
+                                        </group>
+                                        <group
+                                            string="Medição de Espessura - Tampo Direito/Superior">
+                                            <field name="insp_med_esp_direito_0" />
+                                            <field name="insp_med_esp_direito_90" />
+                                            <field name="insp_med_esp_direito_180" />
+                                            <field name="insp_med_esp_direito_270" />
+                                        </group>
+                                        <group string="Medição de Espessura - Tubo da Fornalha">
+                                            <field name="insp_med_esp_tubo_0" />
+                                            <field name="insp_med_esp_tubo_90" />
+                                            <field name="insp_med_esp_tubo_180" />
+                                            <field name="insp_med_esp_tubo_270" />
+                                        </group>
+                                        <group string="Medição de Espessura -  Costado">
+                                            <field name="insp_med_esp_costado_0" />
+                                            <field name="insp_med_esp_costado_90" />
+                                            <field name="insp_med_esp_costado_180" />
+                                            <field name="insp_med_esp_costado_270" />
+                                        </group>
+                                    </group>
+                                </page>
+                                <page string="Teste Hidrostático" style="font-size: 15px"
+                                    attrs="{'invisible': [('insp_vaso_th', '!=', True)]}">
+                                    <group>
+                                        <group>
+                                            <field name="insp_th_fluido_teste" />
+                                            <field name="insp_th_press_trabalho" />
+                                            <field name="insp_th_press_teste" />
+                                            <field name="insp_th_desenho" />
+                                            <field name="insp_th_manometro" />
+                                            <field name="insp_th_croqui" />
+                                        </group>
+                                        <group></group>
+                                        <group string="Imagens do Teste Hidrostático">
+                                            <field name="insp_th_img_1" widget="image"
+                                                options="{'size': [200, 200]}" />
+                                            <field name="insp_th_img_2" widget="image"
+                                                options="{'size': [200, 200]}" />
+                                            <field name="insp_th_img_3" widget="image"
+                                                options="{'size': [200, 200]}" />
+                                            <field name="insp_th_img_4" widget="image"
+                                                options="{'size': [200, 200]}" />
+                                            <field name="insp_th_img_5" widget="image"
+                                                options="{'size': [200, 200]}" />
+                                        </group>
+                                        <group></group>
+                                        <group>
+                                            <field name="insp_th_laudo" widget="radio"
+                                                options="{'horizontal': true}" />
+                                        </group>
+                                    </group>
+                                </page>
+                                <page string="Líquido Penetrante" style="font-size: 15px"
+                                    attrs="{'invisible': [('insp_vaso_lp', '!=', True)]}">
+                                    <group>
+                                        <group string="Dados do Material Ensaiado">
+                                            <field name="insp_lp_equip_peca" />
+                                            <field name="insp_lp_desenho_referencia" />
+                                            <field name="insp_lp_condicao_superficie"
+                                                widget="radio"
+                                                options="{'horizontal': true}" />
+                                            <field name="insp_lp_trata_termico" widget="radio"
+                                                options="{'horizontal': true}" />
+                                        </group>
+                                        <group></group>
+                                        <group string="Consumíveis Utilizados - Penetrante">
+                                            <field name="insp_lp_penetrante_modelo" />
+                                            <field name="insp_lp_penetrante_validade_date" />
+                                            <field name="insp_lp_penetrante_lote" />
+                                            <field name="insp_lp_penetrante_tempo" />
+                                        </group>
+                                        <group string="Consumíveis Utilizados - Revelador">
+                                            <field name="insp_lp_revelador_modelo" />
+                                            <field name="insp_lp_revelador_validade_date" />
+                                            <field name="insp_lp_revelador_lote" />
+                                            <field name="insp_lp_revelador_tempo" />
+                                        </group>
+                                        <group string="Consumíveis Utilizados - Removedor">
+                                            <field name="insp_lp_removedor_tipo" widget="radio"
+                                                options="{'horizontal': true}" />
+                                            <field name="insp_lp_removedor_validade_date" />
+                                            <field name="insp_lp_removedor_lote" />
+                                            <field name="insp_lp_removedor_temperatura" />
+                                        </group>
+                                        <group></group>
+                                        <group string="Observações / Comentários">
+                                            <field name="insp_lp_obs_comentarios" />
+                                        </group>
+                                        <group></group>
+                                        <group string="Registro Fotográfico - Líquido Penetrante">
+                                            <field name="insp_lp_img_1" widget="image"
+                                                options="{'size': [200, 200]}" />
+                                            <field name="insp_lp_img_2" widget="image"
+                                                options="{'size': [200, 200]}" />
+                                            <field name="insp_lp_img_3" widget="image"
+                                                options="{'size': [200, 200]}" />
+                                            <field name="insp_lp_img_4" widget="image"
+                                                options="{'size': [200, 200]}" />
+                                            <field name="insp_lp_img_5" widget="image"
+                                                options="{'size': [200, 200]}" />
+                                            <field name="insp_lp_img_6" widget="image"
+                                                options="{'size': [200, 200]}" />
+                                            <field name="insp_lp_img_7" widget="image"
+                                                options="{'size': [200, 200]}" />
+                                            <field name="insp_lp_img_8" widget="image"
+                                                options="{'size': [200, 200]}" />
+                                            <field name="insp_lp_img_9" widget="image"
+                                                options="{'size': [200, 200]}" />
+                                            <field name="insp_lp_img_10" widget="image"
+                                                options="{'size': [200, 200]}" />
+                                            <field name="insp_lp_img_11" widget="image"
+                                                options="{'size': [200, 200]}" />
+                                            <field name="insp_lp_img_12" widget="image"
+                                                options="{'size': [200, 200]}" />
+                                            <field name="insp_lp_img_13" widget="image"
+                                                options="{'size': [200, 200]}" />
+                                            <field name="insp_lp_img_14" widget="image"
+                                                options="{'size': [200, 200]}" />
+                                            <field name="insp_lp_img_15" widget="image"
+                                                options="{'size': [200, 200]}" />
+                                        </group>
+                                        <group></group>
+                                        <group string="Registro Fotográfico - Revelador">
+                                            <field name="insp_lp_revelador_img_1" widget="image"
+                                                options="{'size': [200, 200]}" />
+                                            <field name="insp_lp_revelador_img_2" widget="image"
+                                                options="{'size': [200, 200]}" />
+                                            <field name="insp_lp_revelador_img_3" widget="image"
+                                                options="{'size': [200, 200]}" />
+                                            <field name="insp_lp_revelador_img_4" widget="image"
+                                                options="{'size': [200, 200]}" />
+                                            <field name="insp_lp_revelador_img_5" widget="image"
+                                                options="{'size': [200, 200]}" />
+                                            <field name="insp_lp_revelador_img_6" widget="image"
+                                                options="{'size': [200, 200]}" />
+                                            <field name="insp_lp_revelador_img_7" widget="image"
+                                                options="{'size': [200, 200]}" />
+                                            <field name="insp_lp_revelador_img_8" widget="image"
+                                                options="{'size': [200, 200]}" />
+                                            <field name="insp_lp_revelador_img_9" widget="image"
+                                                options="{'size': [200, 200]}" />
+                                            <field name="insp_lp_revelador_img_10"
+                                                widget="image"
+                                                options="{'size': [200, 200]}" />
+                                            <field name="insp_lp_revelador_img_11"
+                                                widget="image"
+                                                options="{'size': [200, 200]}" />
+                                            <field name="insp_lp_revelador_img_12"
+                                                widget="image"
+                                                options="{'size': [200, 200]}" />
+                                            <field name="insp_lp_revelador_img_13"
+                                                widget="image"
+                                                options="{'size': [200, 200]}" />
+                                            <field name="insp_lp_revelador_img_14"
+                                                widget="image"
+                                                options="{'size': [200, 200]}" />
+                                            <field name="insp_lp_revelador_img_15"
+                                                widget="image"
+                                                options="{'size': [200, 200]}" />
+                                        </group>
+                                    </group>
+                                </page>
+                            </notebook>
                         </page>
                         <page string="Inspeção Caldeira" style="font-size: 17px"
                             attrs="{'invisible': ['|', ('tipo_equip', '!=', 'caldeira'),
                         ('tipo_equip', '=', False)]}">
                             <group string="Inspeção da Caldeira">
                                 <group>
-                                    <field name="insp_cal_tipo_inspecao" widget="radio" />
+                                    <field name="insp_tipo_inspecao" widget="radio" />
                                 </group>
                                 <group string="Exames e Ensaios Realizados"
-                                    attrs="{'invisible': [('insp_cal_tipo_inspecao', '=', False)]}">
+                                    attrs="{'invisible': [('insp_tipo_inspecao', '=', False)]}">
                                     <field name="insp_cal_ex_externo_interno" />
                                     <field name="insp_cal_med_espessura" />
                                     <field name="insp_cal_th" />
@@ -580,7 +932,7 @@
                                         <field name="insp_cal_1_1" widget="radio"
                                             options="{'horizontal': true}" />
                                         <field name="insp_cal_1_2" widget="radio"
-                                            options="{'horizontal': true}" /> 
+                                            options="{'horizontal': true}" />
                                     </group>
                                     <group></group>
                                     <group string="2. Instalação em ambiente aberto">
@@ -841,26 +1193,610 @@
                         <page string="Inspeção Tubulação" style="font-size: 17px"
                             attrs="{'invisible': ['|', ('tipo_equip', '!=', 'tubulacao'),
                         ('tipo_equip', '=', False)]}">
-
+                            <group string="Inspeção da Tubulação">
+                                <group>
+                                    <field name="insp_tipo_inspecao" widget="radio" />
+                                </group>
+                                <group string="Exames e Ensaios Realizados"
+                                    attrs="{'invisible': [('insp_tipo_inspecao', '=', False)]}">
+                                    <field name="insp_tubu_ex_externo" />
+                                    <field name="insp_tubu_th" />
+                                    <field name="insp_tubu_lp" />
+                                </group>
+                            </group>
+                            <notebook>
+                                <page string="Exame Externo" style="font-size: 15px"
+                                    attrs="{'invisible': [('insp_tubu_ex_externo', '!=', True)]}">
+                                    <group string="Sistemas de Segurança">
+                                        <field name="insp_tubu_7_1" widget="radio"
+                                            options="{'horizontal': true}" />
+                                        <field name="insp_tubu_7_2" widget="radio"
+                                            options="{'horizontal': true}" />
+                                        <field name="insp_tubu_7_3" widget="radio"
+                                            options="{'horizontal': true}" />
+                                        <field name="insp_tubu_7_4" widget="radio"
+                                            options="{'horizontal': true}" />
+                                    </group>
+                                    <group></group>
+                                    <group string="Segurança na Operação">
+                                        <field name="insp_tubu_9_1" widget="radio"
+                                            options="{'horizontal': true}" />
+                                        <field name="insp_tubu_9_2" widget="radio"
+                                            options="{'horizontal': true}" />
+                                        <field name="insp_tubu_9_3" widget="radio"
+                                            options="{'horizontal': true}" />
+                                    </group>
+                                    <group></group>
+                                    <group string="Descrição dos Exames Executados">
+                                        <field name="insp_tubu_10_1" widget="radio"
+                                            options="{'horizontal': true}" />
+                                        <field name="insp_tubu_10_2" widget="radio"
+                                            options="{'horizontal': true}" />
+                                        <field name="insp_tubu_10_3" widget="radio"
+                                            options="{'horizontal': true}" />
+                                        <field name="insp_tubu_10_4" widget="radio"
+                                            options="{'horizontal': true}" />
+                                        <field name="insp_tubu_10_5" widget="radio"
+                                            options="{'horizontal': true}" />
+                                    </group>
+                                    <group></group>
+                                    <group string="Registro Fotográfico">
+                                        <field name="insp_tubu_img_1" widget="image"
+                                            options="{'size': [200, 200]}" />
+                                        <field name="insp_tubu_img_2" widget="image"
+                                            options="{'size': [200, 200]}" />
+                                        <field name="insp_tubu_img_3" widget="image"
+                                            options="{'size': [200, 200]}" />
+                                        <field name="insp_tubu_img_4" widget="image"
+                                            options="{'size': [200, 200]}" />
+                                        <field name="insp_tubu_img_5" widget="image"
+                                            options="{'size': [200, 200]}" />
+                                        <field name="insp_tubu_img_6" widget="image"
+                                            options="{'size': [200, 200]}" />
+                                    </group>
+                                </page>
+                                <page string="Teste Hidrostático" style="font-size: 15px"
+                                    attrs="{'invisible': [('insp_tubu_th', '!=', True)]}">
+                                    <group>
+                                        <group>
+                                            <field name="insp_th_fluido_teste" />
+                                            <field name="insp_th_press_trabalho" />
+                                            <field name="insp_th_press_teste" />
+                                            <field name="insp_th_desenho" />
+                                            <field name="insp_th_manometro" />
+                                            <field name="insp_th_croqui" />
+                                        </group>
+                                        <group></group>
+                                        <group string="Imagens do Teste Hidrostático">
+                                            <field name="insp_th_img_1" widget="image"
+                                                options="{'size': [200, 200]}" />
+                                            <field name="insp_th_img_2" widget="image"
+                                                options="{'size': [200, 200]}" />
+                                            <field name="insp_th_img_3" widget="image"
+                                                options="{'size': [200, 200]}" />
+                                            <field name="insp_th_img_4" widget="image"
+                                                options="{'size': [200, 200]}" />
+                                            <field name="insp_th_img_5" widget="image"
+                                                options="{'size': [200, 200]}" />
+                                        </group>
+                                        <group></group>
+                                        <group>
+                                            <field name="insp_th_laudo" widget="radio"
+                                                options="{'horizontal': true}" />
+                                        </group>
+                                    </group>
+                                </page>
+                                <page string="Líquido Penetrante" style="font-size: 15px"
+                                    attrs="{'invisible': [('insp_tubu_lp', '!=', True)]}">
+                                    <group>
+                                        <group string="Dados do Material Ensaiado">
+                                            <field name="insp_lp_equip_peca" />
+                                            <field name="insp_lp_desenho_referencia" />
+                                            <field name="insp_lp_condicao_superficie"
+                                                widget="radio"
+                                                options="{'horizontal': true}" />
+                                            <field name="insp_lp_trata_termico" widget="radio"
+                                                options="{'horizontal': true}" />
+                                        </group>
+                                        <group></group>
+                                        <group string="Consumíveis Utilizados - Penetrante">
+                                            <field name="insp_lp_penetrante_modelo" />
+                                            <field name="insp_lp_penetrante_validade_date" />
+                                            <field name="insp_lp_penetrante_lote" />
+                                            <field name="insp_lp_penetrante_tempo" />
+                                        </group>
+                                        <group string="Consumíveis Utilizados - Revelador">
+                                            <field name="insp_lp_revelador_modelo" />
+                                            <field name="insp_lp_revelador_validade_date" />
+                                            <field name="insp_lp_revelador_lote" />
+                                            <field name="insp_lp_revelador_tempo" />
+                                        </group>
+                                        <group string="Consumíveis Utilizados - Removedor">
+                                            <field name="insp_lp_removedor_tipo" widget="radio"
+                                                options="{'horizontal': true}" />
+                                            <field name="insp_lp_removedor_validade_date" />
+                                            <field name="insp_lp_removedor_lote" />
+                                            <field name="insp_lp_removedor_temperatura" />
+                                        </group>
+                                        <group></group>
+                                        <group string="Observações / Comentários">
+                                            <field name="insp_lp_obs_comentarios" />
+                                        </group>
+                                        <group></group>
+                                        <group string="Registro Fotográfico - Líquido Penetrante">
+                                            <field name="insp_lp_img_1" widget="image"
+                                                options="{'size': [200, 200]}" />
+                                            <field name="insp_lp_img_2" widget="image"
+                                                options="{'size': [200, 200]}" />
+                                            <field name="insp_lp_img_3" widget="image"
+                                                options="{'size': [200, 200]}" />
+                                            <field name="insp_lp_img_4" widget="image"
+                                                options="{'size': [200, 200]}" />
+                                            <field name="insp_lp_img_5" widget="image"
+                                                options="{'size': [200, 200]}" />
+                                            <field name="insp_lp_img_6" widget="image"
+                                                options="{'size': [200, 200]}" />
+                                            <field name="insp_lp_img_7" widget="image"
+                                                options="{'size': [200, 200]}" />
+                                            <field name="insp_lp_img_8" widget="image"
+                                                options="{'size': [200, 200]}" />
+                                            <field name="insp_lp_img_9" widget="image"
+                                                options="{'size': [200, 200]}" />
+                                            <field name="insp_lp_img_10" widget="image"
+                                                options="{'size': [200, 200]}" />
+                                            <field name="insp_lp_img_11" widget="image"
+                                                options="{'size': [200, 200]}" />
+                                            <field name="insp_lp_img_12" widget="image"
+                                                options="{'size': [200, 200]}" />
+                                            <field name="insp_lp_img_13" widget="image"
+                                                options="{'size': [200, 200]}" />
+                                            <field name="insp_lp_img_14" widget="image"
+                                                options="{'size': [200, 200]}" />
+                                            <field name="insp_lp_img_15" widget="image"
+                                                options="{'size': [200, 200]}" />
+                                        </group>
+                                        <group></group>
+                                        <group string="Registro Fotográfico - Revelador">
+                                            <field name="insp_lp_revelador_img_1" widget="image"
+                                                options="{'size': [200, 200]}" />
+                                            <field name="insp_lp_revelador_img_2" widget="image"
+                                                options="{'size': [200, 200]}" />
+                                            <field name="insp_lp_revelador_img_3" widget="image"
+                                                options="{'size': [200, 200]}" />
+                                            <field name="insp_lp_revelador_img_4" widget="image"
+                                                options="{'size': [200, 200]}" />
+                                            <field name="insp_lp_revelador_img_5" widget="image"
+                                                options="{'size': [200, 200]}" />
+                                            <field name="insp_lp_revelador_img_6" widget="image"
+                                                options="{'size': [200, 200]}" />
+                                            <field name="insp_lp_revelador_img_7" widget="image"
+                                                options="{'size': [200, 200]}" />
+                                            <field name="insp_lp_revelador_img_8" widget="image"
+                                                options="{'size': [200, 200]}" />
+                                            <field name="insp_lp_revelador_img_9" widget="image"
+                                                options="{'size': [200, 200]}" />
+                                            <field name="insp_lp_revelador_img_10"
+                                                widget="image"
+                                                options="{'size': [200, 200]}" />
+                                            <field name="insp_lp_revelador_img_11"
+                                                widget="image"
+                                                options="{'size': [200, 200]}" />
+                                            <field name="insp_lp_revelador_img_12"
+                                                widget="image"
+                                                options="{'size': [200, 200]}" />
+                                            <field name="insp_lp_revelador_img_13"
+                                                widget="image"
+                                                options="{'size': [200, 200]}" />
+                                            <field name="insp_lp_revelador_img_14"
+                                                widget="image"
+                                                options="{'size': [200, 200]}" />
+                                            <field name="insp_lp_revelador_img_15"
+                                                widget="image"
+                                                options="{'size': [200, 200]}" />
+                                        </group>
+                                    </group>
+                                </page>
+                            </notebook>
                         </page>
                         <page string="Inspeção Tanque" style="font-size: 17px"
                             attrs="{'invisible': ['|', ('tipo_equip', '!=', 'tanque'),
                         ('tipo_equip', '=', False)]}">
-
+                            <group string="Inspeção do Tanque">
+                                <group>
+                                    <field name="insp_tipo_inspecao" widget="radio" />
+                                </group>
+                                <group string="Exames e Ensaios Realizados"
+                                    attrs="{'invisible': [('insp_tipo_inspecao', '=', False)]}">
+                                    <field name="insp_tanque_ex_externo" />
+                                    <field name="insp_tanque_ex_interno" />
+                                    <field name="insp_tanque_med_espessura" />
+                                    <field name="insp_tanque_th" />
+                                    <field name="insp_tanque_lp" />
+                                </group>
+                            </group>
+                            <notebook>
+                                <page string="Exame Externo" style="font-size: 15px"
+                                    attrs="{'invisible': [('insp_tanque_ex_externo', '!=', True)]}">
+                                    <group string="1. Identificação do Tanque">
+                                        <field name="insp_tanque_1_1" widget="radio"
+                                            options="{'horizontal': true}" />
+                                        <field name="insp_tanque_1_2" widget="radio"
+                                            options="{'horizontal': true}" />
+                                    </group>
+                                    <group string="2. Registro da Inspeção - Externo">
+                                        <field name="insp_tanque_2_1" widget="radio"
+                                            options="{'horizontal': true}" />
+                                        <field name="insp_tanque_2_2" widget="radio"
+                                            options="{'horizontal': true}" />
+                                        <field name="insp_tanque_2_3" widget="radio"
+                                            options="{'horizontal': true}" />
+                                        <field name="insp_tanque_2_4" widget="radio"
+                                            options="{'horizontal': true}" />
+                                        <field name="insp_tanque_2_5" widget="radio"
+                                            options="{'horizontal': true}" />
+                                        <field name="insp_tanque_2_6" widget="radio"
+                                            options="{'horizontal': true}" />
+                                        <field name="insp_tanque_2_7" widget="radio"
+                                            options="{'horizontal': true}" />
+                                        <field name="insp_tanque_2_8" widget="radio"
+                                            options="{'horizontal': true}" />
+                                        <field name="insp_tanque_2_9" widget="radio"
+                                            options="{'horizontal': true}" />
+                                        <field name="insp_tanque_2_10" widget="radio"
+                                            options="{'horizontal': true}" />
+                                        <field name="insp_tanque_2_11" widget="radio"
+                                            options="{'horizontal': true}" />
+                                        <field name="insp_tanque_2_12" widget="radio"
+                                            options="{'horizontal': true}" />
+                                        <field name="insp_tanque_2_13" widget="radio"
+                                            options="{'horizontal': true}" />
+                                        <field name="insp_tanque_2_14" widget="radio"
+                                            options="{'horizontal': true}" />
+                                        <field name="insp_tanque_2_15" widget="radio"
+                                            options="{'horizontal': true}" />
+                                        <field name="insp_tanque_2_16" widget="radio"
+                                            options="{'horizontal': true}" />
+                                        <field name="insp_tanque_2_17" widget="radio"
+                                            options="{'horizontal': true}" />
+                                        <field name="insp_tanque_2_18" widget="radio"
+                                            options="{'horizontal': true}" />
+                                    </group>
+                                    <group string="3 Registro Fotográfico">
+                                        <field name="insp_tanque_img_1" widget="image"
+                                            options="{'size': [200, 200]}" />
+                                        <field name="insp_tanque_img_2" widget="image"
+                                            options="{'size': [200, 200]}" />
+                                        <field name="insp_tanque_img_3" widget="image"
+                                            options="{'size': [200, 200]}" />
+                                        <field name="insp_tanque_img_4" widget="image"
+                                            options="{'size': [200, 200]}" />
+                                        <field name="insp_tanque_img_5" widget="image"
+                                            options="{'size': [200, 200]}" />
+                                        <field name="insp_tanque_img_6" widget="image"
+                                            options="{'size': [200, 200]}" />
+                                        <field name="insp_tanque_img_7" widget="image"
+                                            options="{'size': [200, 200]}" />
+                                        <field name="insp_tanque_img_8" widget="image"
+                                            options="{'size': [200, 200]}" />
+                                        <field name="insp_tanque_img_9" widget="image"
+                                            options="{'size': [200, 200]}" />
+                                        <field name="insp_tanque_img_10" widget="image"
+                                            options="{'size': [200, 200]}" />
+                                    </group>
+                                </page>
+                                <page string="Exame Interno" style="font-size: 15px"
+                                    attrs="{'invisible': [('insp_tanque_ex_interno', '!=', True)]}">
+                                    <group string="1. Registro da Inspeção - Interno">
+                                        <field name="insp_tanque_interno_1_1" widget="radio"
+                                            options="{'horizontal': true}" />
+                                        <field name="insp_tanque_interno_1_2" widget="radio"
+                                            options="{'horizontal': true}" />
+                                        <field name="insp_tanque_interno_1_3" widget="radio"
+                                            options="{'horizontal': true}" />
+                                        <field name="insp_tanque_interno_1_4" widget="radio"
+                                            options="{'horizontal': true}" />
+                                        <field name="insp_tanque_interno_1_5" widget="radio"
+                                            options="{'horizontal': true}" />
+                                        <field name="insp_tanque_interno_1_6" widget="radio"
+                                            options="{'horizontal': true}" />
+                                        <field name="insp_tanque_interno_1_7" widget="radio"
+                                            options="{'horizontal': true}" />
+                                        <field name="insp_tanque_interno_1_8" widget="radio"
+                                            options="{'horizontal': true}" />
+                                    </group>
+                                    <group string="2. Registro Fotográfico">
+                                        <field name="insp_tanque_interno_img_1" widget="image"
+                                            options="{'size': [200, 200]}" />
+                                        <field name="insp_tanque_interno_img_2" widget="image"
+                                            options="{'size': [200, 200]}" />
+                                        <field name="insp_tanque_interno_img_3" widget="image"
+                                            options="{'size': [200, 200]}" />
+                                        <field name="insp_tanque_interno_img_4" widget="image"
+                                            options="{'size': [200, 200]}" />
+                                        <field name="insp_tanque_interno_img_5" widget="image"
+                                            options="{'size': [200, 200]}" />
+                                        <field name="insp_tanque_interno_img_6" widget="image"
+                                            options="{'size': [200, 200]}" />
+                                        <field name="insp_tanque_interno_img_7" widget="image"
+                                            options="{'size': [200, 200]}" />
+                                        <field name="insp_tanque_interno_img_8" widget="image"
+                                            options="{'size': [200, 200]}" />
+                                        <field name="insp_tanque_interno_img_9" widget="image"
+                                            options="{'size': [200, 200]}" />
+                                        <field name="insp_tanque_interno_img_10" widget="image"
+                                            options="{'size': [200, 200]}" />
+                                    </group>
+                                </page>
+                                <page string="Medição de Espessura" style="font-size: 15px"
+                                    attrs="{'invisible': [('insp_tanque_med_espessura', '!=', True)]}">
+                                    <group>
+                                        <group
+                                            string="Medição de Espessura - Tampo Esquerdo/Superior">
+                                            <field name="insp_med_esp_esquerdo_0" />
+                                            <field name="insp_med_esp_esquerdo_90" />
+                                            <field name="insp_med_esp_esquerdo_180" />
+                                            <field name="insp_med_esp_esquerdo_270" />
+                                        </group>
+                                        <group
+                                            string="Medição de Espessura - Tampo Direito/Superior">
+                                            <field name="insp_med_esp_direito_0" />
+                                            <field name="insp_med_esp_direito_90" />
+                                            <field name="insp_med_esp_direito_180" />
+                                            <field name="insp_med_esp_direito_270" />
+                                        </group>
+                                        <group string="Medição de Espessura - Tubo da Fornalha">
+                                            <field name="insp_med_esp_tubo_0" />
+                                            <field name="insp_med_esp_tubo_90" />
+                                            <field name="insp_med_esp_tubo_180" />
+                                            <field name="insp_med_esp_tubo_270" />
+                                        </group>
+                                        <group string="Medição de Espessura -  Costado">
+                                            <field name="insp_med_esp_costado_0" />
+                                            <field name="insp_med_esp_costado_90" />
+                                            <field name="insp_med_esp_costado_180" />
+                                            <field name="insp_med_esp_costado_270" />
+                                        </group>
+                                    </group>
+                                </page>
+                                <page string="Teste Hidrostático" style="font-size: 15px"
+                                    attrs="{'invisible': [('insp_tanque_th', '!=', True)]}">
+                                    <group>
+                                        <group>
+                                            <field name="insp_th_fluido_teste" />
+                                            <field name="insp_th_press_trabalho" />
+                                            <field name="insp_th_press_teste" />
+                                            <field name="insp_th_desenho" />
+                                            <field name="insp_th_manometro" />
+                                            <field name="insp_th_croqui" />
+                                        </group>
+                                        <group></group>
+                                        <group string="Imagens do Teste Hidrostático">
+                                            <field name="insp_th_img_1" widget="image"
+                                                options="{'size': [200, 200]}" />
+                                            <field name="insp_th_img_2" widget="image"
+                                                options="{'size': [200, 200]}" />
+                                            <field name="insp_th_img_3" widget="image"
+                                                options="{'size': [200, 200]}" />
+                                            <field name="insp_th_img_4" widget="image"
+                                                options="{'size': [200, 200]}" />
+                                            <field name="insp_th_img_5" widget="image"
+                                                options="{'size': [200, 200]}" />
+                                        </group>
+                                        <group></group>
+                                        <group>
+                                            <field name="insp_th_laudo" widget="radio"
+                                                options="{'horizontal': true}" />
+                                        </group>
+                                    </group>
+                                </page>
+                                <page string="Líquido Penetrante" style="font-size: 15px"
+                                    attrs="{'invisible': [('insp_tanque_lp', '!=', True)]}">
+                                    <group>
+                                        <group string="Dados do Material Ensaiado">
+                                            <field name="insp_lp_equip_peca" />
+                                            <field name="insp_lp_desenho_referencia" />
+                                            <field name="insp_lp_condicao_superficie"
+                                                widget="radio"
+                                                options="{'horizontal': true}" />
+                                            <field name="insp_lp_trata_termico" widget="radio"
+                                                options="{'horizontal': true}" />
+                                        </group>
+                                        <group></group>
+                                        <group string="Consumíveis Utilizados - Penetrante">
+                                            <field name="insp_lp_penetrante_modelo" />
+                                            <field name="insp_lp_penetrante_validade_date" />
+                                            <field name="insp_lp_penetrante_lote" />
+                                            <field name="insp_lp_penetrante_tempo" />
+                                        </group>
+                                        <group string="Consumíveis Utilizados - Revelador">
+                                            <field name="insp_lp_revelador_modelo" />
+                                            <field name="insp_lp_revelador_validade_date" />
+                                            <field name="insp_lp_revelador_lote" />
+                                            <field name="insp_lp_revelador_tempo" />
+                                        </group>
+                                        <group string="Consumíveis Utilizados - Removedor">
+                                            <field name="insp_lp_removedor_tipo" widget="radio"
+                                                options="{'horizontal': true}" />
+                                            <field name="insp_lp_removedor_validade_date" />
+                                            <field name="insp_lp_removedor_lote" />
+                                            <field name="insp_lp_removedor_temperatura" />
+                                        </group>
+                                        <group></group>
+                                        <group string="Observações / Comentários">
+                                            <field name="insp_lp_obs_comentarios" />
+                                        </group>
+                                        <group></group>
+                                        <group string="Registro Fotográfico - Líquido Penetrante">
+                                            <field name="insp_lp_img_1" widget="image"
+                                                options="{'size': [200, 200]}" />
+                                            <field name="insp_lp_img_2" widget="image"
+                                                options="{'size': [200, 200]}" />
+                                            <field name="insp_lp_img_3" widget="image"
+                                                options="{'size': [200, 200]}" />
+                                            <field name="insp_lp_img_4" widget="image"
+                                                options="{'size': [200, 200]}" />
+                                            <field name="insp_lp_img_5" widget="image"
+                                                options="{'size': [200, 200]}" />
+                                            <field name="insp_lp_img_6" widget="image"
+                                                options="{'size': [200, 200]}" />
+                                            <field name="insp_lp_img_7" widget="image"
+                                                options="{'size': [200, 200]}" />
+                                            <field name="insp_lp_img_8" widget="image"
+                                                options="{'size': [200, 200]}" />
+                                            <field name="insp_lp_img_9" widget="image"
+                                                options="{'size': [200, 200]}" />
+                                            <field name="insp_lp_img_10" widget="image"
+                                                options="{'size': [200, 200]}" />
+                                            <field name="insp_lp_img_11" widget="image"
+                                                options="{'size': [200, 200]}" />
+                                            <field name="insp_lp_img_12" widget="image"
+                                                options="{'size': [200, 200]}" />
+                                            <field name="insp_lp_img_13" widget="image"
+                                                options="{'size': [200, 200]}" />
+                                            <field name="insp_lp_img_14" widget="image"
+                                                options="{'size': [200, 200]}" />
+                                            <field name="insp_lp_img_15" widget="image"
+                                                options="{'size': [200, 200]}" />
+                                        </group>
+                                        <group></group>
+                                        <group string="Registro Fotográfico - Revelador">
+                                            <field name="insp_lp_revelador_img_1" widget="image"
+                                                options="{'size': [200, 200]}" />
+                                            <field name="insp_lp_revelador_img_2" widget="image"
+                                                options="{'size': [200, 200]}" />
+                                            <field name="insp_lp_revelador_img_3" widget="image"
+                                                options="{'size': [200, 200]}" />
+                                            <field name="insp_lp_revelador_img_4" widget="image"
+                                                options="{'size': [200, 200]}" />
+                                            <field name="insp_lp_revelador_img_5" widget="image"
+                                                options="{'size': [200, 200]}" />
+                                            <field name="insp_lp_revelador_img_6" widget="image"
+                                                options="{'size': [200, 200]}" />
+                                            <field name="insp_lp_revelador_img_7" widget="image"
+                                                options="{'size': [200, 200]}" />
+                                            <field name="insp_lp_revelador_img_8" widget="image"
+                                                options="{'size': [200, 200]}" />
+                                            <field name="insp_lp_revelador_img_9" widget="image"
+                                                options="{'size': [200, 200]}" />
+                                            <field name="insp_lp_revelador_img_10"
+                                                widget="image"
+                                                options="{'size': [200, 200]}" />
+                                            <field name="insp_lp_revelador_img_11"
+                                                widget="image"
+                                                options="{'size': [200, 200]}" />
+                                            <field name="insp_lp_revelador_img_12"
+                                                widget="image"
+                                                options="{'size': [200, 200]}" />
+                                            <field name="insp_lp_revelador_img_13"
+                                                widget="image"
+                                                options="{'size': [200, 200]}" />
+                                            <field name="insp_lp_revelador_img_14"
+                                                widget="image"
+                                                options="{'size': [200, 200]}" />
+                                            <field name="insp_lp_revelador_img_15"
+                                                widget="image"
+                                                options="{'size': [200, 200]}" />
+                                        </group>
+                                    </group>
+                                </page>
+                            </notebook>
                         </page>
                         <page string="Inspeção PI" style="font-size: 17px"
                             attrs="{'invisible': ['|', ('tipo_equip', '!=', 'pi'),
                         ('tipo_equip', '=', False)]}">
+                            <group string="Inspeção da PI">
+                                <group>
+                                    <field name="insp_tipo_inspecao" widget="radio" />
+                                </group>
+                            </group>
+                            <notebook>
+                                <page string="Dados dos Padrões Utilizados (SMP)"
+                                    style="font-size: 15px"
+                                    attrs="{'invisible': [('insp_tipo_inspecao', '!=', True)]}">
 
+                                </page>
+                                <page string="Resultados Obtidos" style="font-size: 15px"
+                                    attrs="{'invisible': [('insp_tipo_inspecao', '!=', True)]}">
+
+                                </page>
+                            </notebook>
                         </page>
                         <page string="Inspeção PSV" style="font-size: 17px"
                             attrs="{'invisible': ['|', ('tipo_equip', '!=', 'psv'),
                         ('tipo_equip', '=', False)]}">
-
+                            <group string="Inspeção da PSV">
+                                <group>
+                                    <field name="insp_tipo_inspecao" widget="radio" />
+                                </group>
+                                <group string="Exames e Ensaios Realizados"
+                                    attrs="{'invisible': [('insp_tipo_inspecao', '=', False)]}">
+                                    <field name="insp_psv_inspecao_visual" />
+                                    <field name="insp_psv_manutencao" />
+                                    <field name="insp_psv_servicos_exe" />
+                                </group>
+                            </group>
+                            <notebook>
+                                <page string="Inspeção Visual" style="font-size: 15px"
+                                    attrs="{'invisible': [('insp_psv_inspecao_visual', '!=', True)]}">
+                                    <group>
+                                        <group>
+                                            <field name="insp_psv_erosao_disco" />
+                                            <field name="insp_psv_esmaga_disco" />
+                                            <field name="insp_psv_oxidacao_corpo" />
+                                            <field name="insp_psv_oxidacao_mola" />
+                                            <field name="insp_psv_mola_quebrada" />
+                                            <field name="insp_psv_mola_desgastes" />
+                                            <field name="insp_psv_sede_danificada" />
+                                            <field name="insp_psv_juntas_rompidas" />
+                                        </group>
+                                        <group>
+                                            <field name="insp_psv_rosca_bocal" />
+                                            <field name="insp_psv_haste_empenada" />
+                                            <field name="insp_psv_parafuso_ajuste_dani" />
+                                            <field name="insp_psv_parafuso_trava_dani" />
+                                            <field name="insp_psv_parafuso_mola_dani" />
+                                            <field name="insp_psv_oxidacao_flange" />
+                                            <field name="insp_psv_erosao_flange" />
+                                            <field name="insp_psv_oxidacao_parafusos" />
+                                        </group>
+                                    </group>
+                                </page>
+                                <page string="Manutenção" style="font-size: 15px"
+                                    attrs="{'invisible': [('insp_psv_manutencao', '!=', True)]}">
+                                    <group>
+                                        <group>
+                                            <field name="insp_psv_manu_retirado_processo" />
+                                            <field name="insp_psv_manu_desmontagem" />
+                                            <field name="insp_psv_manu_neutralizacao" />
+                                            <field name="insp_psv_manu_limpeza" />
+                                            <field name="insp_psv_manu_jateamento" />
+                                            <field name="insp_psv_manu_usinagem" />
+                                            <field name="insp_psv_manu_retifica" />
+                                        </group>
+                                        <group>
+                                            <field name="insp_psv_manu_lapidacao" />
+                                            <field name="insp_psv_manu_repintura" />
+                                            <field name="insp_psv_manu_montagem" />
+                                            <field name="insp_psv_manu_calibracao" />
+                                            <field name="insp_psv_manu_instalacao" />
+                                            <field name="insp_psv_manu_acompanhamento" />
+                                        </group>
+                                    </group>
+                                </page>
+                                <page string="Serviços Executados" style="font-size: 15px"
+                                    attrs="{'invisible': [('insp_psv_servicos_exe', '!=', True)]}">
+                                    <group>
+                                        <field name="insp_psv_serv_exe_pintura" />
+                                        <field name="insp_psv_serv_exe_plaqueta" />
+                                        <field name="insp_psv_serv_exe_lacre" />
+                                        <field name="insp_psv_serv_exe_protecao" />
+                                    </group>
+                                </page>
+                            </notebook>
                         </page>
                     </notebook>
                     <group string="Assinaturas"
-                        attrs="{'invisible': [('insp_cal_tipo_inspecao', '=', False)]}">
+                        attrs="{'invisible': [('insp_tipo_inspecao', '=', False)]}">
                         <group>
                             <field name="insp_ass_inspetor" widget="signature" />
                         </group>
@@ -884,12 +1820,12 @@
         <field name="name">Equipamentos</field>
         <field name="type">ir.actions.act_window</field>
         <field name="res_model">nr.equipamento</field>
-        <field name="view_mode">kanban,tree,form</field>
+        <field name="view_mode">tree,form,kanban</field>
         <field name="domain">[]</field>
         <field name="context">{}</field>
         <field name="help" type="html">
             <p class="o_view_nocontent_smiling_face">
-                Crie seu primeiro equipamento!
+                Crie Seu Primeiro Equipamento!
             </p>
         </field>
     </record>

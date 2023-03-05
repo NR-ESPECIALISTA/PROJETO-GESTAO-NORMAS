@@ -10,7 +10,7 @@
             </t>
         </xpath>
     </template>
-
+    <!-- Configuração das migalhas das paginas do Portal -->
     <template id="portal_breadcrumbs" inherit_id="portal.portal_breadcrumbs">
         <xpath expr="//ol[hasclass('o_portal_submenu')]" position="inside">
             <li t-if="page_name == 'equipamento_list_dashboard_view'" class="breadcrumb-item">
@@ -20,26 +20,24 @@
             <li t-if="page_name == 'equipamento_form_view'" class="breadcrumb-item">
                 <a href="/my/equip">DashBoard</a>
             </li>
-            <li t-if="page_name == 'equipamento_form_view'" class="breadcrumb-item">
-                <a href="/my/equip/vaso">Vaso de Pressão</a>
-            </li>
 
             <li t-if="page_name == 'equipamento_list_vaso_view'" class="breadcrumb-item">
+                <a href="/my/equip/vaso">Equipamento(s)</a>
+            </li>
+
+            <li t-if="page_name == 'equipamento_list_view'" class="breadcrumb-item">
                 <a href="/my/equip">DashBoard</a>
             </li>
-            <li t-if="page_name == 'equipamento_list_vaso_view'" class="breadcrumb-item">
-                Vaso de Pressão
+            <li t-if="page_name == 'equipamento_list_view'" class="breadcrumb-item">
+                Equipamento(s)
             </li>
         </xpath>
     </template>
 
-    <!-- Lista de Visualização do Vaso de Pressão -->
-    <template id="wb_equipamento_list_vaso_view_portal">
-        <!-- <xpath expr="//ol[hasclass('o_portal_submenu')]" position="inside">
-            <h1>TESTE</h1>
-        </xpath> -->
+    <!-- Lista de Visualização dos equipamentos -->
+    <template id="wb_equipamento_list_view_portal">
         <t t-call="portal.portal_layout">
-            <t t-if="page_name == 'equipamento_list_vaso_view'">
+            <t t-if="page_name == 'equipamento_list_view'">
                 <t t-call="portal.portal_table">
                     <thead>
                         <tr class="active">
@@ -53,13 +51,34 @@
                         <t t-foreach="equipamentos" t-as="equipamento">
                             <tr>
                                 <td class="text-center">
-                                    <a t-attf-href="/my/equip/vaso/#{equipamento.equipamento_id}">
-                                        <t t-out="equipamento.name" />
-                                    </a>
+                                    <t t-if="equipamento.tipo_equip == 'vaso_de_pressao'">
+                                        <a
+                                            t-attf-href="/my/equip/vaso/#{equipamento.equipamento_id}">
+                                            <t t-out="equipamento.name" />
+                                        </a>
+                                    </t>
+                                    <t t-elif="equipamento.tipo_equip == 'caldeira'">
+                                        <a
+                                            t-attf-href="/my/equip/caldeira/#{equipamento.equipamento_id}">
+                                            <t t-out="equipamento.name" />
+                                        </a>
+                                    </t>
+                                    <t t-elif="equipamento.tipo_equip == 'tubulacao'">
+                                        <a
+                                            t-attf-href="/my/equip/tubulacao/#{equipamento.equipamento_id}">
+                                            <t t-out="equipamento.name" />
+                                        </a>
+                                    </t>
+                                    <t t-else="equipamento.tipo_equip == 'tanque'">
+                                        <a
+                                            t-attf-href="/my/equip/tanque/#{equipamento.equipamento_id}">
+                                            <t t-out="equipamento.name" />
+                                        </a>
+                                    </t>
                                 </td>
                                 <td
                                     class="text-center">
-                                    <t t-out="equipamento.desc_equip" />
+                                    <t t-out="base_url" />
                                 </td>
                                 <td
                                     class="text-center">
@@ -106,6 +125,7 @@
         </t>
     </template>
 
+    <!-- Começo do Dashboard -->
     <template id="wb_equipamento_dashboard_view_portal">
         <link rel="stylesheet"
             href="/NREspecialista/static/src/css/style_dashboard_portal.css" />
@@ -141,7 +161,7 @@
                                                     Vaso de Pressão
                                                 </div>
                                                 <div class="h5 mb-0 font-weight-bold text-gray-800">
-                                                    <t t-out="total_equipamentos" />
+                                                    <t t-out="total_equipamentos_vaso" />
                                                 </div>
                                             </div>
                                             <div class="col-7">
@@ -170,7 +190,7 @@
                                                     Caldeira
                                                 </div>
                                                 <div class="h5 mb-0 font-weight-bold text-gray-800">
-                                                    2
+                                                    <t t-out="total_equipamentos_caldeira" />
                                                 </div>
                                             </div>
                                             <div class="col-7">
@@ -197,7 +217,7 @@
                                                     Tubulação
                                                 </div>
                                                 <div class="h5 mb-0 font-weight-bold text-gray-800">
-                                                    5
+                                                    <t t-out="total_equipamentos_tubulacao" />
                                                 </div>
                                             </div>
                                             <div class="col-7">
@@ -224,7 +244,7 @@
                                                     Tanque
                                                 </div>
                                                 <div class="h5 mb-0 font-weight-bold text-gray-800">
-                                                    2
+                                                    <t t-out="total_equipamentos_tanque" />
                                                 </div>
                                             </div>
                                             <div class="col-7">
@@ -240,200 +260,13 @@
                             </a>
                         </div>
                     </div>
-                    <div class="row">
-                        <div class="col-lg-4">
-                            <div class="card mb-4">
-                                <div class="card-body text-center">
-                                    <img
-                                        src="https://mdbcdn.b-cdn.net/img/Photos/new-templates/bootstrap-chat/ava3.webp"
-                                        alt="avatar"
-                                        class="rounded-circle img-fluid" style="width: 150px;" />
-                                    <h5 class="my-3">John Smith</h5>
-                                    <p class="text-muted mb-1">Full Stack Developer</p>
-                                    <p class="text-muted mb-4">Bay Area, San Francisco, CA</p>
-                                    <div class="d-flex justify-content-center mb-2">
-                                        <button type="button" class="btn btn-primary">Follow</button>
-                                        <button type="button" class="btn btn-outline-primary ms-1">
-                                            Message</button>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="card mb-4 mb-lg-0">
-                                <div class="card-body p-0">
-                                    <ul class="list-group list-group-flush rounded-3">
-                                        <li
-                                            class="list-group-item d-flex justify-content-between align-items-center p-3">
-                                            <i class="fas fa-globe fa-lg text-warning"></i>
-                                            <p class="mb-0">https://mdbootstrap.com</p>
-                                        </li>
-                                        <li
-                                            class="list-group-item d-flex justify-content-between align-items-center p-3">
-                                            <i class="fab fa-github fa-lg" style="color: #333333;"></i>
-                                            <p class="mb-0">mdbootstrap</p>
-                                        </li>
-                                        <li
-                                            class="list-group-item d-flex justify-content-between align-items-center p-3">
-                                            <i class="fab fa-twitter fa-lg" style="color: #55acee;"></i>
-                                            <p class="mb-0">@mdbootstrap</p>
-                                        </li>
-                                        <li
-                                            class="list-group-item d-flex justify-content-between align-items-center p-3">
-                                            <i class="fab fa-instagram fa-lg"
-                                                style="color: #ac2bac;"></i>
-                                            <p class="mb-0">mdbootstrap</p>
-                                        </li>
-                                        <li
-                                            class="list-group-item d-flex justify-content-between align-items-center p-3">
-                                            <i class="fab fa-facebook-f fa-lg"
-                                                style="color: #3b5998;"></i>
-                                            <p class="mb-0">mdbootstrap</p>
-                                        </li>
-                                    </ul>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-lg-8">
-                            <div class="card mb-4">
-                                <div class="card-body">
-                                    <div class="row">
-                                        <div class="col-sm-3">
-                                            <p class="mb-0">Full Name</p>
-                                        </div>
-                                        <div class="col-sm-9">
-                                            <p class="text-muted mb-0">Johnatan Smith</p>
-                                        </div>
-                                    </div>
-                                    <hr>
-                                        <div class="row">
-                                            <div class="col-sm-3">
-                                                <p class="mb-0">Email</p>
-                                            </div>
-                                            <div class="col-sm-9">
-                                                <p class="text-muted mb-0">example@example.com</p>
-                                            </div>
-                                        </div>
-                                    </hr>
-                                    <div class="row">
-                                        <div class="col-sm-3">
-                                            <p class="mb-0">Phone</p>
-                                        </div>
-                                        <div class="col-sm-9">
-                                            <p class="text-muted mb-0">(097) 234-5678</p>
-                                        </div>
-                                    </div>
-                                    <hr>
-                                        <div class="row">
-                                            <div class="col-sm-3">
-                                                <p class="mb-0">Mobile</p>
-                                            </div>
-                                            <div class="col-sm-9">
-                                                <p class="text-muted mb-0">(098) 765-4321</p>
-                                            </div>
-                                        </div>
-                                    </hr>
-                                    <div class="row">
-                                        <div class="col-sm-3">
-                                            <p class="mb-0">Address</p>
-                                        </div>
-                                        <div class="col-sm-9">
-                                            <p class="text-muted mb-0">Bay Area, San Francisco, CA</p>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="row">
-                                <div class="col-md-6">
-                                    <div class="card mb-4 mb-md-0">
-                                        <div class="card-body">
-                                            <p class="mb-4"><span
-                                                    class="text-primary font-italic me-1">assigment</span>
-                                                Project Status </p>
-                                            <p class="mb-1" style="font-size: .77rem;">Web Design</p>
-                                            <div class="progress rounded" style="height: 5px;">
-                                                <div class="progress-bar" role="progressbar"
-                                                    style="width: 80%" aria-valuenow="80"
-                                                    aria-valuemin="0" aria-valuemax="100"></div>
-                                            </div>
-                                            <p class="mt-4 mb-1" style="font-size: .77rem;">Website
-                                                Markup</p>
-                                            <div class="progress rounded" style="height: 5px;">
-                                                <div class="progress-bar" role="progressbar"
-                                                    style="width: 72%" aria-valuenow="72"
-                                                    aria-valuemin="0" aria-valuemax="100"></div>
-                                            </div>
-                                            <p class="mt-4 mb-1" style="font-size: .77rem;">One Page</p>
-                                            <div class="progress rounded" style="height: 5px;">
-                                                <div class="progress-bar" role="progressbar"
-                                                    style="width: 89%" aria-valuenow="89"
-                                                    aria-valuemin="0" aria-valuemax="100"></div>
-                                            </div>
-                                            <p class="mt-4 mb-1" style="font-size: .77rem;">Mobile
-                                                Template</p>
-                                            <div class="progress rounded" style="height: 5px;">
-                                                <div class="progress-bar" role="progressbar"
-                                                    style="width: 55%" aria-valuenow="55"
-                                                    aria-valuemin="0" aria-valuemax="100"></div>
-                                            </div>
-                                            <p class="mt-4 mb-1" style="font-size: .77rem;">Backend
-                                                API</p>
-                                            <div class="progress rounded mb-2" style="height: 5px;">
-                                                <div class="progress-bar" role="progressbar"
-                                                    style="width: 66%" aria-valuenow="66"
-                                                    aria-valuemin="0" aria-valuemax="100"></div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="col-md-6">
-                                    <div class="card mb-4 mb-md-0">
-                                        <div class="card-body">
-                                            <p class="mb-4"><span
-                                                    class="text-primary font-italic me-1">assigment</span>
-                                                Project Status </p>
-                                            <p class="mb-1" style="font-size: .77rem;">Web Design</p>
-                                            <div class="progress rounded" style="height: 5px;">
-                                                <div class="progress-bar" role="progressbar"
-                                                    style="width: 80%" aria-valuenow="80"
-                                                    aria-valuemin="0" aria-valuemax="100"></div>
-                                            </div>
-                                            <p class="mt-4 mb-1" style="font-size: .77rem;">Website
-                                                Markup</p>
-                                            <div class="progress rounded" style="height: 5px;">
-                                                <div class="progress-bar" role="progressbar"
-                                                    style="width: 72%" aria-valuenow="72"
-                                                    aria-valuemin="0" aria-valuemax="100"></div>
-                                            </div>
-                                            <p class="mt-4 mb-1" style="font-size: .77rem;">One Page</p>
-                                            <div class="progress rounded" style="height: 5px;">
-                                                <div class="progress-bar" role="progressbar"
-                                                    style="width: 89%" aria-valuenow="89"
-                                                    aria-valuemin="0" aria-valuemax="100"></div>
-                                            </div>
-                                            <p class="mt-4 mb-1" style="font-size: .77rem;">Mobile
-                                                Template</p>
-                                            <div class="progress rounded" style="height: 5px;">
-                                                <div class="progress-bar" role="progressbar"
-                                                    style="width: 55%" aria-valuenow="55"
-                                                    aria-valuemin="0" aria-valuemax="100"></div>
-                                            </div>
-                                            <p class="mt-4 mb-1" style="font-size: .77rem;">Backend
-                                                API</p>
-                                            <div class="progress rounded mb-2" style="height: 5px;">
-                                                <div class="progress-bar" role="progressbar"
-                                                    style="width: 66%" aria-valuenow="66"
-                                                    aria-valuemin="0" aria-valuemax="100"></div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
                 </div>
             </section>
         </t>
     </template>
+    <!-- Fim do Dashboard -->
 
+    <!-- Começo da Informação do Equipamento Selecionado -->
     <template id="wb_equipamento_form_view_portal" inherit_id="portal.portal_sidebar">
         <xpath expr="//div[hasclass('o_portal_sidebar')]" position="inside">
             <t t-if="page_name == 'equipamento_form_view'">
@@ -443,10 +276,6 @@
                             <div class="col-lg-4">
                                 <div class="card mb-12">
                                     <div class="card-body text-center">
-                                        <!-- <img
-                                            src="https://mdbcdn.b-cdn.net/img/Photos/new-templates/bootstrap-chat/ava3.webp"
-                                            alt="avatar"
-                                            class="rounded-circle img-fluid" style="width: 150px;" /> -->
                                         <div class="flex-grow-0"
                                             t-if="equipamentos.imagem_equip != False">
                                             <img class="rounded-circle"
@@ -465,6 +294,9 @@
                                         <h5 class="my-3">
                                             <t t-out="equipamentos.name" />
                                         </h5>
+
+                                        <!-- TENTATIVA DE FAZER O BOTÃO DE ~ DOWLOAD ~ -->
+
                                         <!-- <t t-set="report_url"
                                             t-value="equipamentos.get_portal_url(report_type='pdf', download=True)" />
                                         <div
@@ -666,4 +498,5 @@
             </t>
         </xpath>
     </template>
+    <!-- Fim da Informação do Equipamento Selecionado -->
 </odoo>
