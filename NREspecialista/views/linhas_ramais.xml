@@ -1,0 +1,15 @@
+<?xml version='1.0' encoding='utf-8'?>
+<odoo>
+    <record id="view_linhas_ramais_form" model="ir.ui.view">
+        <field name="name">linhas.ramais.form</field>
+        <field name="model">linhas.ramais</field>
+        <field name="arch" type="xml">
+            <form>
+                <group>
+                    <field name="name" placeholder="Linhas e Ramais" class="oe_title"
+                        string="Linhas e Ramais"/>
+                </group>
+            </form>
+        </field>   
+    </record>
+</odoo>
