@@ -1,0 +1,58 @@
+<?xml version='1.0' encoding='utf-8'?>
+<odoo>
+
+    <!-- Top menu item -->
+    <menuitem
+        id="menu_nr_root"
+        name="Gestão NR-13"
+        web_icon="NREspecialista,static/description/icon.png"
+        sequence="0" />
+
+    <menuitem
+        id="menu_patient_master"
+        name="Não existe"
+        parent="menu_nr_root"
+        sequence="2" />
+
+    <!--barra de busca-->
+    <record id="view_task_search_form" model="ir.ui.view">
+        <field name="name">project.task.search.form</field>
+        <field name="model">project.task</field>
+        <field name="arch" type="xml">
+           <search string="Equipamentos">
+                <field name="name" string="Task"/>
+                <!--<field name="tag_ids"/>-->
+                <!--<field name="user_ids" filter_domain="[('user_ids.name', 'ilike', self), ('user_ids.active', 'in', [True, False])]"/>-->
+                <field string="Equipamento" name="display_project_id"/>
+                <!-- trocar nomes dos campos abaixo para colocar o que vai ser possível filtrar -->
+                <field name="stage_id"/>
+                <field name="partner_id" operator="child_of"/>
+                <field name="parent_id"/>
+                <filter string="My Tasks" name="my_tasks" domain="[('user_ids', 'in', uid)]"/>
+                <filter string="Unassigned" name="unassigned" domain="[('user_ids', '=', False)]"/>
+                <separator/>
+                <filter string="Starred" name="starred" domain="[('priority', 'in', [0, 1])]"/>
+                <!--Filtros padrões abaixo-->
+                <filter string="Archived" name="inactive" domain="[('active', '=', False)]"/>
+                <separator/>
+                <filter invisible="1" string="Late Activities" name="activities_overdue"
+                    domain="[('my_activity_date_deadline', '&lt;', context_today().strftime('%Y-%m-%d'))]"
+                    help="Show all records which has next action date is before today"/>
+                <filter invisible="1" string="Today Activities" name="activities_today"
+                    domain="[('my_activity_date_deadline', '=', context_today().strftime('%Y-%m-%d'))]"/>
+                <filter invisible="1" string="Future Activities" name="activities_upcoming_all"
+                    domain="[('my_activity_date_deadline', '&gt;', context_today().strftime('%Y-%m-%d'))]"/>
+                <group expand="0" string="Group By">
+                    <filter string="Stage" name="stage" context="{'group_by': 'stage_id'}"/>
+                    <filter string="Personal Stage" name="personal_stage" context="{'group_by': 'personal_stage_type_ids'}"/>
+                    <filter string="Assignees" name="user" context="{'group_by': 'user_ids'}"/>
+                    <filter string="Project" name="project" context="{'group_by': 'project_id'}"/>
+                    <filter string="Customer" name="customer" context="{'group_by': 'partner_id'}"/>
+                    <filter string="Kanban State" name="kanban_state" context="{'group_by': 'kanban_state'}"/>
+                    <filter string="Deadline" name="date_deadline" context="{'group_by': 'date_deadline'}"/>
+                    <filter string="Creation Date" name="group_create_date" context="{'group_by': 'create_date'}"/>
+                </group>                
+            </search>
+        </field>
+    </record>    
+</odoo>
