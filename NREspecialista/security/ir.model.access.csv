@@ -1,0 +1,9 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access.nr.equipamento,access_nr_equipamento,NREspecialista.model_nr_equipamento,base.group_user,1,1,1,1
+access.equip.documentacao,access_equip_documentacao,NREspecialista.model_equip_documentacao,base.group_user,1,1,1,1
+access.equip.vinculo,access_equip_vinculo,NREspecialista.model_equip_vinculo,base.group_user,1,1,1,1
+access.normas.fabricacao,access_normas_fabricacao,NREspecialista.model_normas_fabricacao,base.group_user,1,1,1,1
+access.material.fabricacao,access_material_fabricacao,NREspecialista.model_material_fabricacao,base.group_user,1,1,1,1
+access.normas.calibracao,access_normas_calibracao,NREspecialista.model_normas_calibracao,base.group_user,1,1,1,1
+access.portal.template,access_portal_template,NREspecialista.model_nr_equipamento,base.group_portal,1,1,0,0
+access.tipo.fluido,access_tipo_fluido,NREspecialista.model_tipo_fluido,base.group_user,1,1,1,1

@@ -1,0 +1,77 @@
+<?xml version='1.0' encoding='utf-8'?>
+<odoo>
+    <record model="ir.ui.view" id="view_equip_vinculo_tree">
+        <field name="name">equip.vinculo.form</field>
+        <field name="model">equip.vinculo</field>
+        <field name="arch" type="xml">
+            <tree>
+                <field name="tittle" />
+                <!-- <field name="tipo_equipamento" />
+                <field name="equip_vinculo_press_trabalho" />
+                <field name="equip_vinculo_pmta" />
+                <field name="equip_vinculo_psv_press_ajuste" />
+                <field name="equip_vinculo_pi_escala"/> -->
+            </tree>
+        </field>
+    </record>
+
+    <record id="view_equip_vinculo_form" model="ir.ui.view">
+        <field name="name">equip.vinculo.form</field>
+        <field name="model">equip.vinculo</field>
+        <field name="arch" type="xml">
+            <form>
+                <sheet>
+                    <group>
+                       <!--  <group string="Equipamento Vínculado:">
+                            <field name="tipo_equipamento"
+                                placeholder='Escolha o tipo de equipamento Vínculado !'
+                                class="oe_title" />-->
+                            <field name="tittle"/>
+                            <!-- <field name="equip_vinculo_press_trabalho" 
+                                attrs="{'invisible': ['|', ('tipo_equipamento', '!=', 'caldeira'), ('tipo_equipamento', '!=', 'vaso_de_pressao'), ('tipo_equipamento', '!=', 'tubulacao'), ('tipo_equipamento', '!=', 'tanque'),
+                            ('tipo_equipamento', '=', False)]}"/>
+                            <field name="equip_vinculo_pmta" 
+                                attrs="{'invisible': ['|', ('tipo_equipamento', '!=', 'caldeira'), ('tipo_equipamento', '!=', 'vaso_de_pressao'), ('tipo_equipamento', '!=', 'tubulacao'), ('tipo_equipamento', '!=', 'tanque'),
+                            ('tipo_equipamento', '=', False)]}"/>
+                            <field name="equip_vinculo_psv_press_ajuste" 
+                                attrs="{'invisible': ['|', ('tipo_equipamento', '!=', 'psv'),
+                            ('tipo_equipamento', '=', False)]}"/>
+                            <field name="equip_vinculo_pi_escala"
+                                attrs="{'invisible': ['|', ('tipo_equipamento', '!=', 'pi'),
+                            ('tipo_equipamento', '=', False)]}"/>
+                                
+                        </group> -->
+                       <!--  <group string="Informações do Contato">
+                            <field name="cliente_propri" widget="res_partner_many2one"
+                                placeholder="Nome da Companhia..."
+                                domain="[('is_company', '=', True)]"
+                                context="{'default_is_company': True, 'show_vat': True}" />
+                            <field name="nome_contato" />
+                            <field name="email_contato" />
+                            <field name="depar_respon" />
+                            <field name="local_instalacao" />
+                        </group> -->
+                        
+                    </group>
+                   
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <!-- actions opening views on models -->
+
+    <record model="ir.actions.act_window" id="action_equip_vinculo">
+        <field name="name">equip_vinculo window</field>
+        <field name="type">ir.actions.act_window</field>
+        <field name="res_model">equip.vinculo</field>
+        <field name="view_mode">kanban,tree,form</field>
+        <field name="domain">[]</field>
+        <field name="context">{}</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Crie seu primeiro registro de documento !
+            </p>
+        </field>
+    </record>
+</odoo>

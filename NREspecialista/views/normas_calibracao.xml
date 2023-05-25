@@ -1,0 +1,15 @@
+<?xml version='1.0' encoding='utf-8'?>
+<odoo>
+    <record id="view_normas_calibracao_form" model="ir.ui.view">
+        <field name="name">normas.calibracao.form</field>
+        <field name="model">normas.calibracao</field>
+        <field name="arch" type="xml">
+            <form>
+                <group>
+                    <field name="name" placeholder="Normas de Calibração" class="oe_title"
+                        string="Normas de Calibração" />
+                </group>
+            </form>
+        </field>
+    </record>
+</odoo>

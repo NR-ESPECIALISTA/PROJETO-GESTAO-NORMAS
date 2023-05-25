@@ -1,0 +1,15 @@
+<?xml version='1.0' encoding='utf-8'?>
+<odoo>
+    <record id="view_normas_fabricacao_form" model="ir.ui.view">
+        <field name="name">normas.fabricacao.form</field>
+        <field name="model">normas.fabricacao</field>
+        <field name="arch" type="xml">
+            <form>
+                <group>
+                    <field name="name" placeholder="Normas de Fabricação" class="oe_title"
+                        string="Normas de Fabricação" />
+                </group>
+            </form>
+        </field>
+    </record>
+</odoo>
